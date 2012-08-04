@@ -1,3 +1,77 @@
+/*******************************************************************************
+                        シーンの移動を扱うためのクラス
+
+Copyright (C) 2012 つららソフト
+
+
+作成者  いかろ
+動作環境 VC++ 2010 Express Edition
+作成日時 2012/08/04 21:38
+最終更新 2012/08/04 21:38
+バージョン 0.9
+
+<更新履歴>
+ ・2012/08/04 21:38
+	暫定版完成
+<更新予定>
+ ・FPS自動調整機能追加
+ ・イベント管理追加
+
+<概要>
+WingLibraryの一部として提供され、
+ゲーム内のシーンを統一的な方法で管理しやすくし、またその関係を構築することのできるテンプレートクラスです。
+これを利用することによってシーンの移動を簡単に行うことができます。
+
+<依存関係>
+なし
+
+<クラス構成>
+wing名前空間内のseen_transition名前空間内にまとめられています。
+いくつかのクラスによって構成されていますが、クライアントが使用するクラスは
+基本的にSeenManagerクラスのみです。
+
+SeenManagerはシーンを管理するクラスで、シーンを現すクラスは
+テンプレート引数として渡します。
+
+<クラスの動作及び相互作用>
+SeenManagerのrunを呼ぶと自動的にフォーカスが入ったオブジェクトが実行されます。
+
+<使い方>
+1.シーンをあらわす具体的なクラスを実装する。
+暗黙のインターフェースは
+
+・typedef (型) Parameter;
+パラメータありのfocusOn(後述)が呼ばれたときの受け取る引数の方(複数受け取る場合はオブジェクト)
+
+・void focusOn();
+フォーカスが入ったとき呼ばれる
+
+・void focusOn(Parameter);
+フォーカスが入ったとき呼ばれる(パラメータを受け取る)
+
+・template<class T> void run(T& Manager);
+実行内容を書く。また、Managerへ参照を受け取れる(changeFocusを呼ぶため)
+
+・void focusOut();
+//フォーカスが外れたときに呼ばれる
+
+となっています。
+
+2.SeenをSeenManagerのテンプレートパラメータとして渡す(typedefすること推奨)
+※SeenManager 変数名;という形で宣言すると関数宣言として扱われるようなので
+auto GameManager = SeenManager;
+のような書き方をすること推奨。
+また、コンストラクタの引数はテンプレートパラメータでわたしたクラスのオブジェクトを渡してください。
+
+3.ループでManagerのrunを呼ぶ。
+
+
+
+
+*******************************************************************************/
+
+
+
 #pragma once
 
 namespace wing{
@@ -37,6 +111,7 @@ struct Dummy{
 
 
 //========================================SeenManager===================================
+
 template < class Defalt,class U1=Dummy<1>,class U2=Dummy<2>,class U3=Dummy<3>,class U4=Dummy<4>,class U5=Dummy<5>,class U6=Dummy<6>,class U7=Dummy<7>,class U8=Dummy<8>,class U9=Dummy<9>,class U10=Dummy<10>,class U11=Dummy<11>,class U12=Dummy<12>,class U13=Dummy<13>,class U14=Dummy<14>,class U15=Dummy<15>,class U16=Dummy<16>,class U17=Dummy<17>,class U18=Dummy<18>,class U19=Dummy<19> >
 class SeenManager{
 private:
