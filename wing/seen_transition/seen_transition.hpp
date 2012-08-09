@@ -7,14 +7,20 @@ Copyright (C) 2012 つららソフト
 作成者  いかろ
 動作環境 VC++ 2010 Express Edition
 作成日時 2012/08/04 21:38
-最終更新 2012/08/04 21:38
-バージョン 0.9
+最終更新 2012/08/09 22:37
+
+バージョン 0.91
 
 <更新履歴>
  ・2012/08/04 21:38
 	暫定版完成
+ ・2012/08/09 22:37
+	Policyいくつか追加
+	それに伴いテンプレート引数変更
+	
+
 <更新予定>
- ・FPS自動調整機能追加
+ ・名前つきテンプレート引数にする
  ・イベント管理追加
 
 <概要>
@@ -78,6 +84,20 @@ namespace wing{
 namespace seen_transition{
 
 
+//================================FPS Policy===================================
+
+template<int FPS>
+class StaticFPSPolicy{
+public:
+
+	void wait();
+
+private:
+
+
+};
+
+
 //==================================Traits=====================================
 //SeenManagerのchangeForcusのための型特性。
 template<typename T>struct Traits{typedef T& ParameterType;};
@@ -109,14 +129,80 @@ struct Dummy{
 	void focusOut(){}
 };
 
+template < class S0,class S1=Dummy<1>,class S2=Dummy<2>,class S3=Dummy<3>,class S4=Dummy<4>,class S5=Dummy<5>,class S6=Dummy<6>,class S7=Dummy<7>,class S8=Dummy<8>,class S9=Dummy<9>,class S10=Dummy<10>,class S11=Dummy<11>,class S12=Dummy<12>,class S13=Dummy<13>,class S14=Dummy<14>,class S15=Dummy<15>,class S16=Dummy<16>,class S17=Dummy<17>,class S18=Dummy<18>,class S19=Dummy<19> >
+struct Seen{
+	typedef S0 T0;
+	typedef S1 T1;
+	typedef S2 T2;
+	typedef S3 T3;
+	typedef S4 T4;
+	typedef S5 T5;
+	typedef S6 T6;
+	typedef S7 T7;
+	typedef S8 T8;
+	typedef S9 T9;
+	typedef S10 T10;
+	typedef S11 T11;
+	typedef S12 T12;
+	typedef S13 T13;
+	typedef S14 T14;
+	typedef S15 T15;
+	typedef S16 T16;
+	typedef S17 T17;
+	typedef S18 T18;
+	typedef S19 T19;
+};
+
+
+
+class NoWaitFPSPolicy{
+public:
+	void wait(){}
+
+};
+
+class NoRefreshPolicy{
+public:
+	void DrawStart(){}
+	void DrawFinish(){}
+
+
+};
+
 
 //========================================SeenManager===================================
 
-template < class Defalt,class U1=Dummy<1>,class U2=Dummy<2>,class U3=Dummy<3>,class U4=Dummy<4>,class U5=Dummy<5>,class U6=Dummy<6>,class U7=Dummy<7>,class U8=Dummy<8>,class U9=Dummy<9>,class U10=Dummy<10>,class U11=Dummy<11>,class U12=Dummy<12>,class U13=Dummy<13>,class U14=Dummy<14>,class U15=Dummy<15>,class U16=Dummy<16>,class U17=Dummy<17>,class U18=Dummy<18>,class U19=Dummy<19> >
-class SeenManager{
+//ParameterがNullのときに明示的に使う。
+class NullType{};
+
+template <class SeenHolder,class FPSPolicy=NoWaitFPSPolicy,class RefreshPolicy=NoRefreshPolicy >
+class SeenManager:public FPSPolicy,
+				  public RefreshPolicy
+	{
 private:
 	//changeFocusを特殊化をするため
 	template<class T> struct ChangeFocusSpecialization;
+	
+	typedef typename SeenHolder::T0 Defalt;
+	typedef typename SeenHolder::T1 U1;
+	typedef typename SeenHolder::T2 U2;
+	typedef typename SeenHolder::T3 U3;
+	typedef typename SeenHolder::T4 U4;
+	typedef typename SeenHolder::T5 U5;
+	typedef typename SeenHolder::T6 U6;
+	typedef typename SeenHolder::T7 U7;
+	typedef typename SeenHolder::T8 U8;
+	typedef typename SeenHolder::T9 U9;
+	typedef typename SeenHolder::T10 U10;
+	typedef typename SeenHolder::T11 U11;
+	typedef typename SeenHolder::T12 U12;
+	typedef typename SeenHolder::T13 U13;
+	typedef typename SeenHolder::T14 U14;
+	typedef typename SeenHolder::T15 U15;
+	typedef typename SeenHolder::T16 U16;
+	typedef typename SeenHolder::T17 U17;
+	typedef typename SeenHolder::T18 U18;
+	typedef typename SeenHolder::T19 U19;
 
 public:
 
@@ -322,8 +408,8 @@ private:
 //==================================method 実装====================================
 
 
-template < class Defalt,class U1,class U2,class U3,class U4,class U5,class U6,class U7,class U8,class U9,class U10,class U11,class U12,class U13,class U14,class U15,class U16,class U17,class U18,class U19>
-wing::seen_transition::SeenManager<Defalt,U1,U2,U3,U4,U5,U6,U7,U8,U9,U10,U11,U12,U13,U14,U15,U16,U17,U18,U19>::
+template <class SeenHolder,class FPSPolicy,class RefreshPolicy >
+wing::seen_transition::SeenManager<SeenHolder,FPSPolicy,RefreshPolicy>::
 SeenManager(Defalt a, U1 a1, U2 a2, U3 a3, U4 a4, U5 a5, U6 a6, U7 a7, U8 a8, U9 a9, U10 a10, U11 a11, U12 a12, U13 a13, U14 a14, U15 a15, U16 a16, U17 a17, U18 a18, U19 a19):
 		NowTarget(0),
 		obj0(a),
@@ -349,9 +435,12 @@ SeenManager(Defalt a, U1 a1, U2 a2, U3 a3, U4 a4, U5 a5, U6 a6, U7 a7, U8 a8, U9
 	{
 	}
 
-template < class Defalt,class U1,class U2,class U3,class U4,class U5,class U6,class U7,class U8,class U9,class U10,class U11,class U12,class U13,class U14,class U15,class U16,class U17,class U18,class U19>
-void wing::seen_transition::SeenManager<Defalt,U1,U2,U3,U4,U5,U6,U7,U8,U9,U10,U11,U12,U13,U14,U15,U16,U17,U18,U19>::
+template <class SeenHolder,class FPSPolicy,class RefreshPolicy >
+void wing::seen_transition::SeenManager<SeenHolder,FPSPolicy,RefreshPolicy>::
 	run(){
+	
+	DrawStart();
+
 	switch(NowTarget){
 		case 0:
 			obj0.run(*this);
@@ -417,8 +506,8 @@ void wing::seen_transition::SeenManager<Defalt,U1,U2,U3,U4,U5,U6,U7,U8,U9,U10,U1
 
 	}
 
-template < class Defalt,class U1,class U2,class U3,class U4,class U5,class U6,class U7,class U8,class U9,class U10,class U11,class U12,class U13,class U14,class U15,class U16,class U17,class U18,class U19>
-void wing::seen_transition::SeenManager<Defalt,U1,U2,U3,U4,U5,U6,U7,U8,U9,U10,U11,U12,U13,U14,U15,U16,U17,U18,U19>::
+template <class SeenHolder,class FPSPolicy,class RefreshPolicy >
+void wing::seen_transition::SeenManager<SeenHolder,FPSPolicy,RefreshPolicy>::
 	focusOut(){
 		switch(NowTarget){
 			case 0:
@@ -481,5 +570,8 @@ void wing::seen_transition::SeenManager<Defalt,U1,U2,U3,U4,U5,U6,U7,U8,U9,U10,U1
 			case 19:
 				obj19.focusOut();
 				break;
-		}	
+		}
+	DrawFinish();
+	wait();
+
 	}
