@@ -63,6 +63,9 @@ private:
 };
 
 
+typedef wing::seen_transition::SeenManager<wing::seen_transition::Seen<SeenTransitionTestClass1,SeenTransitionTestClass2>> MyManager;
+	
+
 //èâä˙âªÉeÉXÉg
 TEST( Seen_Transition_Test, InitializeTest ){
 
@@ -73,8 +76,8 @@ TEST( Seen_Transition_Test, InitializeTest ){
 	auto CallFlag1=false;
 	auto CallFlag2=false;
 
-	auto Manager=wing::seen_transition::
-		SeenManager<SeenTransitionTestClass1,SeenTransitionTestClass2>
+	auto Manager=MyManager(SeenTransitionTestClass1(FocusOnFlag1,FocusOnParameter1,CallFlag1),SeenTransitionTestClass2(FocusOnFlag2,FocusOnParameter2,CallFlag2));
+		
 		(SeenTransitionTestClass1(FocusOnFlag1,FocusOnParameter1,CallFlag1),SeenTransitionTestClass2(FocusOnFlag2,FocusOnParameter2,CallFlag2));
 	
 	EXPECT_EQ(0,Manager.getNowTarget()); 
@@ -89,7 +92,7 @@ TEST( Seen_Transition_Test, ChangeFocusTestNonParameter ){
 	auto FocusOnParameter2=0;
 	auto CallFlag1=false;
 	auto CallFlag2=false;
-	auto Manager=wing::seen_transition::SeenManager<SeenTransitionTestClass1,SeenTransitionTestClass2>(SeenTransitionTestClass1(FocusOnFlag1,FocusOnParameter1,CallFlag1),SeenTransitionTestClass2(FocusOnFlag2,FocusOnParameter2,CallFlag2));
+	auto Manager=MyManager(SeenTransitionTestClass1(FocusOnFlag1,FocusOnParameter1,CallFlag1),SeenTransitionTestClass2(FocusOnFlag2,FocusOnParameter2,CallFlag2));
 	
 
 	Manager.changeFocus<SeenTransitionTestClass1>();
@@ -121,7 +124,7 @@ TEST( Seen_Transition_Test, ChangeFocusTestParameter ){
 	auto FocusOnParameter2=0;
 	auto CallFlag1=false;
 	auto CallFlag2=false;
-	auto Manager=wing::seen_transition::SeenManager<SeenTransitionTestClass1,SeenTransitionTestClass2>(SeenTransitionTestClass1(FocusOnFlag1,FocusOnParameter1,CallFlag1),SeenTransitionTestClass2(FocusOnFlag2,FocusOnParameter2,CallFlag2));
+	auto Manager=MyManager(SeenTransitionTestClass1(FocusOnFlag1,FocusOnParameter1,CallFlag1),SeenTransitionTestClass2(FocusOnFlag2,FocusOnParameter2,CallFlag2));
 	
 
 
@@ -156,7 +159,7 @@ TEST( Seen_Transition_Test, RunTest ){
 	auto FocusOnParameter2=0;
 	auto CallFlag1=false;
 	auto CallFlag2=false;
-	auto Manager=wing::seen_transition::SeenManager<SeenTransitionTestClass1,SeenTransitionTestClass2>(SeenTransitionTestClass1(FocusOnFlag1,FocusOnParameter1,CallFlag1),SeenTransitionTestClass2(FocusOnFlag2,FocusOnParameter2,CallFlag2));
+	auto Manager=MyManager(SeenTransitionTestClass1(FocusOnFlag1,FocusOnParameter1,CallFlag1),SeenTransitionTestClass2(FocusOnFlag2,FocusOnParameter2,CallFlag2));
 	
 	Manager.run();
 	EXPECT_EQ(true,CallFlag1);
