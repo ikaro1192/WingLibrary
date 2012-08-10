@@ -9,7 +9,7 @@ Copyright (C) 2012 つららソフト
 作成日時 2012/08/04 21:38
 最終更新 2012/08/09 22:37
 
-バージョン 0.91
+バージョン 0.94
 
 <更新履歴>
  ・2012/08/04 21:38
@@ -17,11 +17,12 @@ Copyright (C) 2012 つららソフト
  ・2012/08/09 22:37
 	Policyいくつか追加
 	それに伴いテンプレート引数変更
-	
+ ・2012/08/10 21:48
+	Event機構追加
 
 <更新予定>
  ・名前つきテンプレート引数にする
- ・イベント管理追加
+
 
 <概要>
 WingLibraryの一部として提供され、
@@ -126,7 +127,9 @@ struct Dummy{
 	
 	template<class T>
 	void run(T& Manager){}
+	template<class Event> void catchEvent(){}
 	void focusOut(){}
+	
 };
 
 template < class S0,class S1=Dummy<1>,class S2=Dummy<2>,class S3=Dummy<3>,class S4=Dummy<4>,class S5=Dummy<5>,class S6=Dummy<6>,class S7=Dummy<7>,class S8=Dummy<8>,class S9=Dummy<9>,class S10=Dummy<10>,class S11=Dummy<11>,class S12=Dummy<12>,class S13=Dummy<13>,class S14=Dummy<14>,class S15=Dummy<15>,class S16=Dummy<16>,class S17=Dummy<17>,class S18=Dummy<18>,class S19=Dummy<19> >
@@ -211,10 +214,16 @@ public:
 	int getNowTarget() const{return NowTarget;}
 	
 	//引数あり、なしの両方を提供
-	template<class T>void changeFocus();
-	template<class T>void changeFocus(typename Traits<typename T::Parameter>::ParameterType p){ChangeFocusSpecialization<T>::func(p,*this);}
+	template<class T>
+		void changeFocus();
+	template<class T>
+		void changeFocus(typename Traits<typename T::Parameter>::ParameterType p){ChangeFocusSpecialization<T>::func(p,*this);}
 	
-	
+	template<class Event>
+		void throwEvent();
+	template<class Event>
+		void throwEvent(Event& e);
+
 
 	template<> void changeFocus<Defalt>(){focusOut();NowTarget=0;obj0.focusOn();}
 	template<> void changeFocus<U1>(){focusOut();NowTarget=1;obj1.focusOn();}
@@ -406,6 +415,58 @@ private:
 
 
 //==================================method 実装====================================
+
+
+template <class SeenHolder,class FPSPolicy,class RefreshPolicy >
+template<class Event>
+void wing::seen_transition::SeenManager<SeenHolder,FPSPolicy,RefreshPolicy>::throwEvent(){
+	obj0.catchEvent<Event>();
+	obj1.catchEvent<Event>();
+	obj2.catchEvent<Event>();
+	obj3.catchEvent<Event>();
+	obj4.catchEvent<Event>();
+	obj5.catchEvent<Event>();
+	obj6.catchEvent<Event>();
+	obj7.catchEvent<Event>();
+	obj8.catchEvent<Event>();
+	obj9.catchEvent<Event>();
+	obj10.catchEvent<Event>();
+	obj11.catchEvent<Event>();
+	obj12.catchEvent<Event>();
+	obj13.catchEvent<Event>();
+	obj14.catchEvent<Event>();
+	obj15.catchEvent<Event>();
+	obj16.catchEvent<Event>();
+	obj17.catchEvent<Event>();
+	obj18.catchEvent<Event>();
+	obj19.catchEvent<Event>();
+}
+
+
+template <class SeenHolder,class FPSPolicy,class RefreshPolicy >
+template<class Event>
+void wing::seen_transition::SeenManager<SeenHolder,FPSPolicy,RefreshPolicy>::throwEvent(Event& e){
+	obj0.catchEvent<Event>(Event& e);
+	obj1.catchEvent<Event>(Event& e);
+	obj2.catchEvent<Event>(Event& e);
+	obj3.catchEvent<Event>(Event& e);
+	obj4.catchEvent<Event>(Event& e);
+	obj5.catchEvent<Event>(Event& e);
+	obj6.catchEvent<Event>(Event& e);
+	obj7.catchEvent<Event>(Event& e);
+	obj8.catchEvent<Event>(Event& e);
+	obj9.catchEvent<Event>(Event& e);
+	obj10.catchEvent<Event>(Event& e);
+	obj11.catchEvent<Event>(Event& e);
+	obj12.catchEvent<Event>(Event& e);
+	obj13.catchEvent<Event>(Event& e);
+	obj14.catchEvent<Event>(Event& e);
+	obj15.catchEvent<Event>(Event& e);
+	obj16.catchEvent<Event>(Event& e);
+	obj17.catchEvent<Event>(Event& e);
+	obj18.catchEvent<Event>(Event& e);
+	obj19.catchEvent<Event>(Event& e);
+}
 
 
 template <class SeenHolder,class FPSPolicy,class RefreshPolicy >
