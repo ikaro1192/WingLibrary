@@ -9,7 +9,7 @@ Copyright (C) 2012 つららソフト
 作成日時 2012/08/04 21:38
 最終更新 2012/08/09 22:37
 
-バージョン 0.94
+バージョン 0.9
 
 <更新履歴>
  ・2012/08/04 21:38
@@ -17,12 +17,14 @@ Copyright (C) 2012 つららソフト
  ・2012/08/09 22:37
 	Policyいくつか追加
 	それに伴いテンプレート引数変更
- ・2012/08/10 21:48
+ ・2012/08/13 21:48
 	Event機構追加
+ ・2012/08/10 22:37
+	名前つきテンプレート引数に変更
+
 
 <更新予定>
- ・名前つきテンプレート引数にする
-
+ ・ダイナミック版を作る
 
 <概要>
 WingLibraryの一部として提供され、
@@ -55,6 +57,10 @@ SeenManagerのrunを呼ぶと自動的にフォーカスが入ったオブジェクトが実行されます。
 
 ・void focusOn(Parameter);
 フォーカスが入ったとき呼ばれる(パラメータを受け取る)
+
+・template<class Event> void catchEvent(){}
+イベントが送られてきたときに適合しない場合無視するため(イベントを拾う場合は特殊化してください)
+
 
 ・template<class T> void run(T& Manager);
 実行内容を書く。また、Managerへ参照を受け取れる(changeFocusを呼ぶため)
@@ -173,16 +179,47 @@ public:
 };
 
 
+//==============================名前付きテンプレートパラメータ===============================
+struct default_policies{
+  typedef NoWaitFPSPolicy FPSPolicy;
+  typedef NoRefreshPolicy RefreshPolicy;
+};
+
+template <class P>
+struct FPSPolicy_is : virtual default_policies{
+	typedef P FPSPolicy;
+};
+
+template <class P>
+struct RefreshPolicy_is : virtual default_policies{
+	typedef P RefreshPolicy;
+};
+
+struct default_policy_args : virtual default_policies{};
+
+template <class Base, int D>
+struct discriminator : public Base {};
+
+template <class P1, class P2>
+struct policy_selector
+  : discriminator<P1, 1>, discriminator<P2, 2>{};
+
+
+
 //========================================SeenManager===================================
 
 //ParameterがNullのときに明示的に使う。
 class NullType{};
 
-template <class SeenHolder,class FPSPolicy=NoWaitFPSPolicy,class RefreshPolicy=NoRefreshPolicy >
-class SeenManager:public FPSPolicy,
-				  public RefreshPolicy
+template <class SeenHolder, class P1=default_policy_args, class P2=default_policy_args >
+class SeenManager:public policy_selector<P1, P2>::FPSPolicy,
+				  public policy_selector<P1, P2>::RefreshPolicy
 	{
 private:
+	typedef typename policy_selector<P1, P2>::FPSPolicy FPSPolicy;
+	typedef typename policy_selector<P1, P2>::RefreshPolicy RefreshPolicy;
+
+
 	//changeFocusを特殊化をするため
 	template<class T> struct ChangeFocusSpecialization;
 	
