@@ -454,9 +454,9 @@ private:
 //==================================method ŽÀ‘•====================================
 
 
-template <class SeenHolder,class FPSPolicy,class RefreshPolicy >
+template <class SeenHolder, class P1, class P2 >
 template<class Event>
-void wing::seen_transition::SeenManager<SeenHolder,FPSPolicy,RefreshPolicy>::throwEvent(){
+void wing::seen_transition::SeenManager<SeenHolder,P1, P2>::throwEvent(){
 	obj0.catchEvent<Event>();
 	obj1.catchEvent<Event>();
 	obj2.catchEvent<Event>();
@@ -480,9 +480,9 @@ void wing::seen_transition::SeenManager<SeenHolder,FPSPolicy,RefreshPolicy>::thr
 }
 
 
-template <class SeenHolder,class FPSPolicy,class RefreshPolicy >
+template <class SeenHolder, class P1, class P2 >
 template<class Event>
-void wing::seen_transition::SeenManager<SeenHolder,FPSPolicy,RefreshPolicy>::throwEvent(Event& e){
+void wing::seen_transition::SeenManager<SeenHolder,P1, P2>::throwEvent(Event& e){
 	obj0.catchEvent<Event>(Event& e);
 	obj1.catchEvent<Event>(Event& e);
 	obj2.catchEvent<Event>(Event& e);
@@ -506,8 +506,8 @@ void wing::seen_transition::SeenManager<SeenHolder,FPSPolicy,RefreshPolicy>::thr
 }
 
 
-template <class SeenHolder,class FPSPolicy,class RefreshPolicy >
-wing::seen_transition::SeenManager<SeenHolder,FPSPolicy,RefreshPolicy>::
+template <class SeenHolder, class P1, class P2 >
+wing::seen_transition::SeenManager<SeenHolder,P1, P2>::
 SeenManager(Defalt a, U1 a1, U2 a2, U3 a3, U4 a4, U5 a5, U6 a6, U7 a7, U8 a8, U9 a9, U10 a10, U11 a11, U12 a12, U13 a13, U14 a14, U15 a15, U16 a16, U17 a17, U18 a18, U19 a19):
 		NowTarget(0),
 		obj0(a),
@@ -533,8 +533,8 @@ SeenManager(Defalt a, U1 a1, U2 a2, U3 a3, U4 a4, U5 a5, U6 a6, U7 a7, U8 a8, U9
 	{
 	}
 
-template <class SeenHolder,class FPSPolicy,class RefreshPolicy >
-void wing::seen_transition::SeenManager<SeenHolder,FPSPolicy,RefreshPolicy>::
+template <class SeenHolder, class P1, class P2 >
+void wing::seen_transition::SeenManager<SeenHolder,P1, P2>::
 	run(){
 	
 	DrawStart();
@@ -604,8 +604,8 @@ void wing::seen_transition::SeenManager<SeenHolder,FPSPolicy,RefreshPolicy>::
 
 	}
 
-template <class SeenHolder,class FPSPolicy,class RefreshPolicy >
-void wing::seen_transition::SeenManager<SeenHolder,FPSPolicy,RefreshPolicy>::
+template <class SeenHolder, class P1, class P2 >
+void wing::seen_transition::SeenManager<SeenHolder,P1, P2>::
 	focusOut(){
 		switch(NowTarget){
 			case 0:
