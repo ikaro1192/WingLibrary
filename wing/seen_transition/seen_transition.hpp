@@ -7,9 +7,9 @@ Copyright (C) 2012 つららソフト
 作成者  いかろ
 動作環境 VC++ 2010 Express Edition
 作成日時 2012/08/04 21:38
-最終更新 2012/08/09 22:37
+最終更新 2012/08/17 21:37
 
-バージョン 0.9
+バージョン 0.98
 
 <更新履歴>
  ・2012/08/04 21:38
@@ -21,6 +21,8 @@ Copyright (C) 2012 つららソフト
 	Event機構追加
  ・2012/08/10 22:37
 	名前つきテンプレート引数に変更
+ ・2012/08/17 21:37
+	ファイルわけ、整理
 
 
 <更新予定>
@@ -32,7 +34,11 @@ WingLibraryの一部として提供され、
 これを利用することによってシーンの移動を簡単に行うことができます。
 
 <依存関係>
+・外部
 なし
+
+・wing
+helper.hpp
 
 <クラス構成>
 wing名前空間内のseen_transition名前空間内にまとめられています。
@@ -50,7 +56,9 @@ SeenManagerのrunを呼ぶと自動的にフォーカスが入ったオブジェクトが実行されます。
 暗黙のインターフェースは
 
 ・typedef (型) Parameter;
-パラメータありのfocusOn(後述)が呼ばれたときの受け取る引数の方(複数受け取る場合はオブジェクト)
+パラメータありのfocusOn(後述)が呼ばれたときの受け取る引数の型(複数受け取る場合はオブジェクト)
+パラメータありのfocusOnが必要ない場合はwing::NullType(common.hppで定義)を指定
+
 
 ・void focusOn();
 フォーカスが入ったとき呼ばれる
@@ -84,132 +92,43 @@ auto GameManager = SeenManager;
 *******************************************************************************/
 
 
-
 #pragma once
+#include "helper.hpp"
+#include "dynamic_seen_transition.hpp"
 
 namespace wing{
 namespace seen_transition{
 
+template<typename T>
+struct Traits;
 
-//================================FPS Policy===================================
-
-template<int FPS>
-class StaticFPSPolicy{
-public:
-
-	void wait();
-
-private:
-
-
-};
-
-
-//==================================Traits=====================================
-//SeenManagerのchangeForcusのための型特性。
-template<typename T>struct Traits{typedef T& ParameterType;};
-template<typename T>struct Traits<T*>{typedef T* ParameterType;};
-template<typename T>struct Traits<T&>{typedef T& ParameterType;};
-template<> struct Traits<bool>{typedef bool ParameterType;};
-template<> struct Traits<char>{typedef char ParameterType;};
-template<> struct Traits<unsigned char>{typedef unsigned char ParameterType;};
-template<> struct Traits<short>{typedef short ParameterType;};
-template<> struct Traits<unsigned short>{typedef unsigned  short ParameterType;};
-template<> struct Traits<int>{typedef int ParameterType;};
-template<> struct Traits<unsigned int>{typedef unsigned  int ParameterType;};
-template<> struct Traits<long>{typedef long ParameterType;};
-template<> struct Traits<unsigned long>{typedef unsigned ParameterType;};
-template<> struct Traits<float>{typedef float ParameterType;};
-template<> struct Traits<double>{typedef double ParameterType;};
-template<> struct Traits<long double>{typedef long double ParameterType;};
-
-
-//==================================Dummy=====================================
-//SeenManagerにデフォルト引数として渡すためのダミー
-//focusOnを提供していないのはDummyにfocusを入れることは不正なため
 template<int ID>
-struct Dummy{
-	typedef int Parameter;
-	
-	template<class T>
-	void run(T& Manager){}
-	template<class Event> void catchEvent(){}
-	void focusOut(){}
-	
-};
-
-template < class S0,class S1=Dummy<1>,class S2=Dummy<2>,class S3=Dummy<3>,class S4=Dummy<4>,class S5=Dummy<5>,class S6=Dummy<6>,class S7=Dummy<7>,class S8=Dummy<8>,class S9=Dummy<9>,class S10=Dummy<10>,class S11=Dummy<11>,class S12=Dummy<12>,class S13=Dummy<13>,class S14=Dummy<14>,class S15=Dummy<15>,class S16=Dummy<16>,class S17=Dummy<17>,class S18=Dummy<18>,class S19=Dummy<19> >
-struct Seen{
-	typedef S0 T0;
-	typedef S1 T1;
-	typedef S2 T2;
-	typedef S3 T3;
-	typedef S4 T4;
-	typedef S5 T5;
-	typedef S6 T6;
-	typedef S7 T7;
-	typedef S8 T8;
-	typedef S9 T9;
-	typedef S10 T10;
-	typedef S11 T11;
-	typedef S12 T12;
-	typedef S13 T13;
-	typedef S14 T14;
-	typedef S15 T15;
-	typedef S16 T16;
-	typedef S17 T17;
-	typedef S18 T18;
-	typedef S19 T19;
-};
+struct Dummy;
 
 
+template < class Defalt, class S1, class S2, class S3, class S4, class S5, class S6,class S7, class S8, class S9, class S10, class S11, class S12, class S13, class S14, class S15,class S16, class S17, class S18, class S19>
+struct Seen;
 
-class NoWaitFPSPolicy{
-public:
-	void wait(){}
+class NoWaitFPSPolicy;
 
-};
+class NoRefreshPolicy;
 
-class NoRefreshPolicy{
-public:
-	void DrawStart(){}
-	void DrawFinish(){}
-
-
-};
-
-
-//==============================名前付きテンプレートパラメータ===============================
-struct default_policies{
-  typedef NoWaitFPSPolicy FPSPolicy;
-  typedef NoRefreshPolicy RefreshPolicy;
-};
+struct default_policies;
 
 template <class P>
-struct FPSPolicy_is : virtual default_policies{
-	typedef P FPSPolicy;
-};
+struct FPSPolicy_is;
 
 template <class P>
-struct RefreshPolicy_is : virtual default_policies{
-	typedef P RefreshPolicy;
-};
+struct RefreshPolicy_is;
 
-struct default_policy_args : virtual default_policies{};
 
-template <class Base, int D>
-struct discriminator : public Base {};
+struct default_policy_args;
 
 template <class P1, class P2>
-struct policy_selector
-  : discriminator<P1, 1>, discriminator<P2, 2>{};
-
-
+struct policy_selector;
 
 //========================================SeenManager===================================
 
-//ParameterがNullのときに明示的に使う。
-class NullType{};
 
 template <class SeenHolder, class P1=default_policy_args, class P2=default_policy_args >
 class SeenManager:public policy_selector<P1, P2>::FPSPolicy,
@@ -218,6 +137,8 @@ class SeenManager:public policy_selector<P1, P2>::FPSPolicy,
 private:
 	typedef typename policy_selector<P1, P2>::FPSPolicy FPSPolicy;
 	typedef typename policy_selector<P1, P2>::RefreshPolicy RefreshPolicy;
+
+
 
 
 	//changeFocusを特殊化をするため
@@ -247,6 +168,9 @@ private:
 public:
 
 	SeenManager(Defalt a, U1 a1=Dummy<1>(), U2 a2=Dummy<2>(), U3 a3=Dummy<3>(), U4 a4=Dummy<4>(), U5 a5=Dummy<5>(), U6 a6=Dummy<6>(), U7 a7=Dummy<7>(), U8 a8=Dummy<8>(), U9 a9=Dummy<9>(), U10 a10=Dummy<10>(), U11 a11=Dummy<11>(), U12 a12=Dummy<12>(), U13 a13=Dummy<13>(), U14 a14=Dummy<14>(), U15 a15=Dummy<15>(), U16 a16=Dummy<16>(), U17 a17=Dummy<17>(), U18 a18=Dummy<18>(), U19 a19=Dummy<19>());
+	SeenManager(const SeenManager<SeenHolder,P1, P2>& Obj);
+	SeenManager& operator=(const SeenManager<SeenHolder,P1, P2>& Obj);
+
 	void run();
 	int getNowTarget() const{return NowTarget;}
 	
@@ -453,6 +377,86 @@ private:
 
 //==================================method 実装====================================
 
+//コンストラクタ
+template <class SeenHolder, class P1, class P2 >
+wing::seen_transition::SeenManager<SeenHolder,P1, P2>::
+SeenManager(Defalt a, U1 a1, U2 a2, U3 a3, U4 a4, U5 a5, U6 a6, U7 a7, U8 a8, U9 a9, U10 a10, U11 a11, U12 a12, U13 a13, U14 a14, U15 a15, U16 a16, U17 a17, U18 a18, U19 a19):
+		NowTarget(0),
+		obj0(a),
+		obj1(a1),
+		obj2(a2),
+		obj3(a3),
+		obj4(a4),
+		obj5(a5),
+		obj6(a6),
+		obj7(a7),
+		obj8(a8),
+		obj9(a9),
+		obj10(a10),
+		obj11(a11),
+		obj12(a12),
+		obj13(a13),
+		obj14(a14),
+		obj15(a15),
+		obj16(a16),
+		obj17(a17),
+		obj18(a18),
+		obj19(a19)
+	{
+	}
+
+
+//コピーコンストラクタ
+template <class SeenHolder, class P1, class P2 >
+wing::seen_transition::SeenManager<SeenHolder,P1, P2>::SeenManager(const SeenManager<SeenHolder,P1, P2>& Obj){
+	Obj.obj0=obj0;
+	Obj.obj1=obj1;
+	Obj.obj2=obj2;
+	Obj.obj3=obj3;
+	Obj.obj4=obj4;
+	Obj.obj5=obj5;
+	Obj.obj6=obj6;
+	Obj.obj7=obj7;
+	Obj.obj8=obj8;
+	Obj.obj9=obj9;
+	Obj.obj10=obj10;
+	Obj.obj11=obj11;
+	Obj.obj12=obj12;
+	Obj.obj13=obj13;
+	Obj.obj14=obj14;
+	Obj.obj15=obj15;
+	Obj.obj16=obj16;
+	Obj.obj17=obj17;
+	Obj.obj18=obj18;
+	Obj.obj19=obj19;
+}
+
+//代入演算子
+template <class SeenHolder, class P1, class P2 >
+wing::seen_transition::SeenManager<SeenHolder,P1, P2>& wing::seen_transition::SeenManager<SeenHolder,P1, P2>::operator=(const SeenManager<SeenHolder,P1, P2>& Obj){
+	Obj.obj0=obj0;
+	Obj.obj1=obj1;
+	Obj.obj2=obj2;
+	Obj.obj3=obj3;
+	Obj.obj4=obj4;
+	Obj.obj5=obj5;
+	Obj.obj6=obj6;
+	Obj.obj7=obj7;
+	Obj.obj8=obj8;
+	Obj.obj9=obj9;
+	Obj.obj10=obj10;
+	Obj.obj11=obj11;
+	Obj.obj12=obj12;
+	Obj.obj13=obj13;
+	Obj.obj14=obj14;
+	Obj.obj15=obj15;
+	Obj.obj16=obj16;
+	Obj.obj17=obj17;
+	Obj.obj18=obj18;
+	Obj.obj19=obj19;
+}
+
+
 
 template <class SeenHolder, class P1, class P2 >
 template<class Event>
@@ -506,32 +510,6 @@ void wing::seen_transition::SeenManager<SeenHolder,P1, P2>::throwEvent(Event& e)
 }
 
 
-template <class SeenHolder, class P1, class P2 >
-wing::seen_transition::SeenManager<SeenHolder,P1, P2>::
-SeenManager(Defalt a, U1 a1, U2 a2, U3 a3, U4 a4, U5 a5, U6 a6, U7 a7, U8 a8, U9 a9, U10 a10, U11 a11, U12 a12, U13 a13, U14 a14, U15 a15, U16 a16, U17 a17, U18 a18, U19 a19):
-		NowTarget(0),
-		obj0(a),
-		obj1(a1),
-		obj2(a2),
-		obj3(a3),
-		obj4(a4),
-		obj5(a5),
-		obj6(a6),
-		obj7(a7),
-		obj8(a8),
-		obj9(a9),
-		obj10(a10),
-		obj11(a11),
-		obj12(a12),
-		obj13(a13),
-		obj14(a14),
-		obj15(a15),
-		obj16(a16),
-		obj17(a17),
-		obj18(a18),
-		obj19(a19)
-	{
-	}
 
 template <class SeenHolder, class P1, class P2 >
 void wing::seen_transition::SeenManager<SeenHolder,P1, P2>::
