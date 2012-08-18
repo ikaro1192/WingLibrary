@@ -9,7 +9,7 @@ Copyright (C) 2012 つららソフト
 作成日時 2012/08/04 21:38
 最終更新 2012/08/17 21:37
 
-バージョン 0.98
+バージョン 0.99
 
 <更新履歴>
  ・2012/08/04 21:38
@@ -23,7 +23,8 @@ Copyright (C) 2012 つららソフト
 	名前つきテンプレート引数に変更
  ・2012/08/17 21:37
 	ファイルわけ、整理
-
+ ・2012/08/18 20:32
+	Event関係のバグ修正
 
 
 <更新予定>
@@ -75,9 +76,17 @@ SeenManagerのrunを呼ぶと自動的にフォーカスが入ったオブジェクトが実行されます。
 実行内容を書く。また、Managerへ参照を受け取れる(changeFocusを呼ぶため)
 
 ・void focusOut();
-//フォーカスが外れたときに呼ばれる
+フォーカスが外れたときに呼ばれる
+
+・template<> void catchEvent<受け取りたいイベントの型>()
+パラメータなしのイベントを受け取るための特殊化
+
+・template<> void catchEvent<受け取りたいイベントの型>(受け取りたいイベントの型 e)
+パラメータありのイベントを受け取るための特殊化
 
 となっています。
+また、publicな領域に「UNDEFINED_EVENT_CHATCHER」マクロをおいてください。
+
 
 2.SeenをSeenManagerのテンプレートパラメータとして渡す(typedefすること推奨)
 ※SeenManager 変数名;という形で宣言すると関数宣言として扱われるようなので
@@ -97,6 +106,11 @@ auto GameManager = SeenManager;
 #include "helper.hpp"
 #include "dynamic_seen_transition.hpp"
 
+#define UNDEFINED_EVENT_CHATCHER template<class Event> void catchEvent(){}\
+	template<class Event> void catchEvent(typename wing::seen_transition::Traits<Event>::ParameterType e){}
+								  
+
+
 namespace wing{
 namespace seen_transition{
 
@@ -108,7 +122,7 @@ struct Dummy;
 
 
 template < class Defalt, class S1, class S2, class S3, class S4, class S5, class S6,class S7, class S8, class S9, class S10, class S11, class S12, class S13, class S14, class S15,class S16, class S17, class S18, class S19>
-struct Seen;
+struct SeenList;
 
 class NoWaitFPSPolicy;
 
@@ -184,7 +198,7 @@ public:
 	template<class Event>
 		void throwEvent();
 	template<class Event>
-		void throwEvent(Event& e);
+		void throwEvent(typename wing::seen_transition::Traits<Event>::ParameterType e);
 
 
 	template<> void changeFocus<Defalt>(){focusOut();NowTarget=0;obj0.focusOn();}
@@ -458,7 +472,7 @@ wing::seen_transition::SeenManager<SeenHolder,P1, P2>& wing::seen_transition::Se
 }
 
 
-
+//throwEvent
 template <class SeenHolder, class P1, class P2 >
 template<class Event>
 void wing::seen_transition::SeenManager<SeenHolder,P1, P2>::throwEvent(){
@@ -484,30 +498,29 @@ void wing::seen_transition::SeenManager<SeenHolder,P1, P2>::throwEvent(){
 	obj19.catchEvent<Event>();
 }
 
-
 template <class SeenHolder, class P1, class P2 >
 template<class Event>
-void wing::seen_transition::SeenManager<SeenHolder,P1, P2>::throwEvent(Event& e){
-	obj0.catchEvent<Event>(Event& e);
-	obj1.catchEvent<Event>(Event& e);
-	obj2.catchEvent<Event>(Event& e);
-	obj3.catchEvent<Event>(Event& e);
-	obj4.catchEvent<Event>(Event& e);
-	obj5.catchEvent<Event>(Event& e);
-	obj6.catchEvent<Event>(Event& e);
-	obj7.catchEvent<Event>(Event& e);
-	obj8.catchEvent<Event>(Event& e);
-	obj9.catchEvent<Event>(Event& e);
-	obj10.catchEvent<Event>(Event& e);
-	obj11.catchEvent<Event>(Event& e);
-	obj12.catchEvent<Event>(Event& e);
-	obj13.catchEvent<Event>(Event& e);
-	obj14.catchEvent<Event>(Event& e);
-	obj15.catchEvent<Event>(Event& e);
-	obj16.catchEvent<Event>(Event& e);
-	obj17.catchEvent<Event>(Event& e);
-	obj18.catchEvent<Event>(Event& e);
-	obj19.catchEvent<Event>(Event& e);
+void wing::seen_transition::SeenManager<SeenHolder,P1, P2>::throwEvent(typename wing::seen_transition::Traits<Event>::ParameterType e){
+	obj0.catchEvent<Event>(e);
+	obj1.catchEvent<Event>(e);
+	obj2.catchEvent<Event>(e);
+	obj3.catchEvent<Event>(e);
+	obj4.catchEvent<Event>(e);
+	obj5.catchEvent<Event>(e);
+	obj6.catchEvent<Event>(e);
+	obj7.catchEvent<Event>(e);
+	obj8.catchEvent<Event>(e);
+	obj9.catchEvent<Event>(e);
+	obj10.catchEvent<Event>(e);
+	obj11.catchEvent<Event>(e);
+	obj12.catchEvent<Event>(e);
+	obj13.catchEvent<Event>(e);
+	obj14.catchEvent<Event>(e);
+	obj15.catchEvent<Event>(e);
+	obj16.catchEvent<Event>(e);
+	obj17.catchEvent<Event>(e);
+	obj18.catchEvent<Event>(e);
+	obj19.catchEvent<Event>(e);
 }
 
 
