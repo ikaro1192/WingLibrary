@@ -55,12 +55,15 @@ struct Dummy{
 	template<class T>
 	void run(T& Manager){}
 	template<class Event> void catchEvent(){}
+	template<class Event> void catchEvent(Event& e){}
+
 	void focusOut(){}
 	
 };
 
+//================================SeenList===================================
 template < class Defalt,class S1=Dummy<1>,class S2=Dummy<2>,class S3=Dummy<3>,class S4=Dummy<4>,class S5=Dummy<5>,class S6=Dummy<6>,class S7=Dummy<7>,class S8=Dummy<8>,class S9=Dummy<9>,class S10=Dummy<10>,class S11=Dummy<11>,class S12=Dummy<12>,class S13=Dummy<13>,class S14=Dummy<14>,class S15=Dummy<15>,class S16=Dummy<16>,class S17=Dummy<17>,class S18=Dummy<18>,class S19=Dummy<19> >
-struct Seen{
+struct SeenList{
 	typedef Defalt T0;
 	typedef S1 T1;
 	typedef S2 T2;
