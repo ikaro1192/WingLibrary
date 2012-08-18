@@ -8,6 +8,8 @@
 #include <unordered_map>
 #include <stdexcept>
 
+#include "../common.hpp"
+
 
 namespace wing{
 namespace seen_transition{
@@ -45,12 +47,25 @@ template<> struct Traits<double>{typedef double ParameterType;};
 template<> struct Traits<long double>{typedef long double ParameterType;};
 
 
+//ParameterのTypedefが定義されているかによって適切な型を返す
+template<class TargetClass>
+class checkDefinedParameterTypedef{
+private:
+	template<typename T>
+	static typename T::Parameter check(typename T::Parameter*);
+	template<typename>
+	static wing::NullType check(...);
+public:
+	typedef decltype(check<TargetClass>(nullptr)) Result;
+
+};
+
+
 //==================================Dummy=====================================
 //SeenManagerにデフォルト引数として渡すためのダミー
 //focusOnを提供していないのはDummyにfocusを入れることは不正なため
 template<int ID>
 struct Dummy{
-	typedef int Parameter;
 	
 	template<class T>
 	void run(T& Manager){}

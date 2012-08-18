@@ -25,6 +25,8 @@ Copyright (C) 2012 つららソフト
 	ファイルわけ、整理
  ・2012/08/18 20:32
 	Event関係のバグ修正
+ ・2012/08/18 22:04
+	パラメータありのfocusOnが必要ない場合はParameterのtypedefが不要なようにした
 
 
 <更新予定>
@@ -59,8 +61,6 @@ SeenManagerのrunを呼ぶと自動的にフォーカスが入ったオブジェクトが実行されます。
 
 ・typedef (型) Parameter;
 パラメータありのfocusOn(後述)が呼ばれたときの受け取る引数の型(複数受け取る場合はオブジェクト)
-パラメータありのfocusOnが必要ない場合はwing::NullType(common.hppで定義)を指定
-
 
 ・void focusOn();
 フォーカスが入ったとき呼ばれる
@@ -193,7 +193,7 @@ public:
 	template<class T>
 		void changeFocus();
 	template<class T>
-		void changeFocus(typename Traits<typename T::Parameter>::ParameterType p){ChangeFocusSpecialization<T>::func(p,*this);}
+		void changeFocus(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<T>::Result>::ParameterType p){ChangeFocusSpecialization<T>::func(p,*this);}
 	
 	template<class Event>
 		void throwEvent();
@@ -254,129 +254,130 @@ private:
 	struct ChangeFocusSpecialization{
 		//不正な変更をエラーにするためわざと提供しない
 		template<class U>
-		static void func(typename Traits<typename T::Parameter>::ParameterType p,U& obj);
+		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<T>::Result>::ParameterType p,U& obj);
 	};
 	
+
 	
 	template<>
 	struct ChangeFocusSpecialization<Defalt>{
 		template<class U>
-		static void func(typename Traits<typename Defalt::Parameter>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=0;obj.obj0.focusOn(p);}
+		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<Defalt>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=0;obj.obj0.focusOn(p);}
 	};
 	
 
 	template<>
 	struct ChangeFocusSpecialization<U1>{
 		template<class U>
-		static void func(typename Traits<typename U1::Parameter>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=1;obj.obj1.focusOn(p);}
+		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<U1>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=1;obj.obj1.focusOn(p);}
 	};
 
 	template<>
 	struct ChangeFocusSpecialization<U2>{
 		template<class U>
-		static void func(typename Traits<typename U2::Parameter>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=2;obj.obj2.focusOn(p);}
+		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<U2>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=2;obj.obj2.focusOn(p);}
 	};
 
 	template<>
 	struct ChangeFocusSpecialization<U3>{
 		template<class U>
-		static void func(typename Traits<typename U3::Parameter>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=3;obj.obj3.focusOn(p);}
+		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<U3>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=3;obj.obj3.focusOn(p);}
 	};
 
 	template<>
 	struct ChangeFocusSpecialization<U4>{
 		template<class U>
-		static void func(typename Traits<typename U4::Parameter>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=4;obj.obj4.focusOn(p);}
+		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<U4>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=4;obj.obj4.focusOn(p);}
 	};
 
 	template<>
 	struct ChangeFocusSpecialization<U5>{
 		template<class U>
-		static void func(typename Traits<typename U5::Parameter>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=5;obj.obj5.focusOn(p);}
+		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<U5>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=5;obj.obj5.focusOn(p);}
 	};
 
 	template<>
 	struct ChangeFocusSpecialization<U6>{
 		template<class U>
-		static void func(typename Traits<typename U6::Parameter>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=6;obj.obj6.focusOn(p);}
+		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<U6>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=6;obj.obj6.focusOn(p);}
 	};
 
 	template<>
 	struct ChangeFocusSpecialization<U7>{
 		template<class U>
-		static void func(typename Traits<typename U7::Parameter>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=7;obj.obj7.focusOn(p);}
+		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<U7>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=7;obj.obj7.focusOn(p);}
 	};
 
 	template<>
 	struct ChangeFocusSpecialization<U8>{
 		template<class U>
-		static void func(typename Traits<typename U8::Parameter>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=8;obj.obj8.focusOn(p);}
+		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<U8>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=8;obj.obj8.focusOn(p);}
 	};
 
 	template<>
 	struct ChangeFocusSpecialization<U9>{
 		template<class U>
-		static void func(typename Traits<typename U9::Parameter>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=9;obj.obj9.focusOn(p);}
+		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<U9>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=9;obj.obj9.focusOn(p);}
 	};
 
 	template<>
 	struct ChangeFocusSpecialization<U10>{
 		template<class U>
-		static void func(typename Traits<typename U10::Parameter>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=10;obj.obj10.focusOn(p);}
+		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<U10>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=10;obj.obj10.focusOn(p);}
 	};
 
 	template<>
 	struct ChangeFocusSpecialization<U11>{
 		template<class U>
-		static void func(typename Traits<typename U11::Parameter>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=11;obj.obj11.focusOn(p);}
+		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<U11>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=11;obj.obj11.focusOn(p);}
 	};
 
 	template<>
 	struct ChangeFocusSpecialization<U12>{
 		template<class U>
-		static void func(typename Traits<typename U12::Parameter>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=12;obj.obj12.focusOn(p);}
+		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<U12>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=12;obj.obj12.focusOn(p);}
 	};
 
 	template<>
 	struct ChangeFocusSpecialization<U13>{
 		template<class U>
-		static void func(typename Traits<typename U13::Parameter>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=13;obj.obj13.focusOn(p);}
+		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<U13>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=13;obj.obj13.focusOn(p);}
 	};
 
 	template<>
 	struct ChangeFocusSpecialization<U14>{
 		template<class U>
-		static void func(typename Traits<typename U14::Parameter>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=14;obj.obj14.focusOn(p);}
+		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<U14>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=14;obj.obj14.focusOn(p);}
 	};
 
 	template<>
 	struct ChangeFocusSpecialization<U15>{
 		template<class U>
-		static void func(typename Traits<typename U15::Parameter>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=15;obj.obj15.focusOn(p);}
+		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<U15>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=15;obj.obj15.focusOn(p);}
 	};
 
 	template<>
 	struct ChangeFocusSpecialization<U16>{
 		template<class U>
-		static void func(typename Traits<typename U16::Parameter>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=16;obj.obj16.focusOn(p);}
+		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<U16>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=16;obj.obj16.focusOn(p);}
 	};
 
 	template<>
 	struct ChangeFocusSpecialization<U17>{
 		template<class U>
-		static void func(typename Traits<typename U17::Parameter>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=17;obj.obj17.focusOn(p);}
+		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<U17>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=17;obj.obj17.focusOn(p);}
 	};
 
 	template<>
 	struct ChangeFocusSpecialization<U18>{
 		template<class U>
-		static void func(typename Traits<typename U18::Parameter>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=18;obj.obj18.focusOn(p);}
+		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<U18>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=18;obj.obj18.focusOn(p);}
 	};
 
 	template<>
 	struct ChangeFocusSpecialization<U19>{
 		template<class U>
-		static void func(typename Traits<typename U19::Parameter>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=19;obj.obj19.focusOn(p);}
+		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<U19>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=19;obj.obj19.focusOn(p);}
 	};
 
 
