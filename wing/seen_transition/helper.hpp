@@ -10,6 +10,9 @@
 
 #include "../common.hpp"
 
+#define UNDEFINED_EVENT_CHATCHER template<class Event> void catchEvent(){}\
+	template<class Event> void catchEvent(typename wing::seen_transition::Traits<Event>::ParameterType e){}
+
 
 namespace wing{
 namespace seen_transition{
@@ -47,6 +50,7 @@ template<> struct Traits<double>{typedef double ParameterType;};
 template<> struct Traits<long double>{typedef long double ParameterType;};
 
 
+//=========================checkDefinedParameterTypedef===========================
 //ParameterのTypedefが定義されているかによって適切な型を返す
 template<class TargetClass>
 class checkDefinedParameterTypedef{
@@ -59,6 +63,39 @@ public:
 	typedef decltype(check<TargetClass>(nullptr)) Result;
 
 };
+//==============================CheckHasFocusOut==================================
+//focusOutがあるかしらべ、ない場合はデフォルトのfocusOutを呼ぶ
+class CheckHasFocusOut{
+private:
+
+	class NotHasFocusOut{
+	public:
+		template<class T>
+		static void focusOut(T&){std::cout<<"no"<<std::endl;}
+	};
+
+	class HasFocusOut{
+	public:
+		template<class T>
+		static void focusOut(T& obj){obj.focusOut();}
+	};
+
+	template<typename T>
+	static HasFocusOut check(decltype(static_cast<T*>(nullptr)->focusOut())*);
+
+	template<typename>
+	static NotHasFocusOut check(...);
+
+
+public:
+	template<class TargetClass>
+	static void focusOut(TargetClass& obj){
+		typedef decltype(check<TargetClass>(nullptr)) Result;
+		Result::focusOut(obj);
+	}
+
+};
+
 
 
 //==================================Dummy=====================================
@@ -69,11 +106,8 @@ struct Dummy{
 	
 	template<class T>
 	void run(T& Manager){}
-	template<class Event> void catchEvent(){}
-	template<class Event> void catchEvent(Event& e){}
-
-	void focusOut(){}
 	
+	UNDEFINED_EVENT_CHATCHER;
 };
 
 //================================SeenList===================================

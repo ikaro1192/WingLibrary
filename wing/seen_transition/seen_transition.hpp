@@ -7,9 +7,9 @@ Copyright (C) 2012 つららソフト
 作成者  いかろ
 動作環境 VC++ 2010 Express Edition
 作成日時 2012/08/04 21:38
-最終更新 2012/08/17 21:37
+最終更新 2012/08/19 20:40
 
-バージョン 0.99
+バージョン 0.998
 
 <更新履歴>
  ・2012/08/04 21:38
@@ -31,6 +31,7 @@ Copyright (C) 2012 つららソフト
 
 <更新予定>
  ・ダイナミック版を作る
+ ・focusOn()を不要にする
 
 <概要>
 WingLibraryの一部として提供され、
@@ -57,25 +58,22 @@ SeenManagerのrunを呼ぶと自動的にフォーカスが入ったオブジェクトが実行されます。
 
 <使い方>
 1.シーンをあらわす具体的なクラスを実装する。
-暗黙のインターフェースは
+暗黙のインターフェース(・が必須、*がオプション)は
 
-・typedef (型) Parameter;
+*typedef (型) Parameter;
 パラメータありのfocusOn(後述)が呼ばれたときの受け取る引数の型(複数受け取る場合はオブジェクト)
 
 ・void focusOn();
 フォーカスが入ったとき呼ばれる
 
-・void focusOn(Parameter);
+*void focusOn(Parameter);
 フォーカスが入ったとき呼ばれる(パラメータを受け取る)
-
-・template<class Event> void catchEvent(){}
-イベントが送られてきたときに適合しない場合無視するため(イベントを拾う場合は特殊化してください)
 
 
 ・template<class T> void run(T& Manager);
 実行内容を書く。また、Managerへ参照を受け取れる(changeFocusを呼ぶため)
 
-・void focusOut();
+*void focusOut();
 フォーカスが外れたときに呼ばれる
 
 ・template<> void catchEvent<受け取りたいイベントの型>()
@@ -104,10 +102,7 @@ auto GameManager = SeenManager;
 
 #pragma once
 #include "helper.hpp"
-#include "dynamic_seen_transition.hpp"
 
-#define UNDEFINED_EVENT_CHATCHER template<class Event> void catchEvent(){}\
-	template<class Event> void catchEvent(typename wing::seen_transition::Traits<Event>::ParameterType e){}
 								  
 
 
@@ -602,64 +597,64 @@ void wing::seen_transition::SeenManager<SeenHolder,P1, P2>::
 	focusOut(){
 		switch(NowTarget){
 			case 0:
-				obj0.focusOut();
+				CheckHasFocusOut::focusOut(obj0);
 				break;
 			case 1:
-				obj1.focusOut();
+				CheckHasFocusOut::focusOut(obj1);
 				break;
 			case 2:
-				obj2.focusOut();
+				CheckHasFocusOut::focusOut(obj2);
 				break;
 			case 3:
-				obj3.focusOut();
+				CheckHasFocusOut::focusOut(obj3);
 				break;
 			case 4:
-				obj4.focusOut();
+				CheckHasFocusOut::focusOut(obj4);
 				break;
 			case 5:
-				obj5.focusOut();
+				CheckHasFocusOut::focusOut(obj5);
 				break;
 			case 6:
-				obj6.focusOut();
+				CheckHasFocusOut::focusOut(obj6);
 				break;
 			case 7:
-				obj7.focusOut();
+				CheckHasFocusOut::focusOut(obj7);
 				break;
 			case 8:
-				obj8.focusOut();
+				CheckHasFocusOut::focusOut(obj8);
 				break;
 			case 9:
-				obj9.focusOut();
+				CheckHasFocusOut::focusOut(obj9);
 				break;
 			case 10:
-				obj10.focusOut();
+				CheckHasFocusOut::focusOut(obj10);
 				break;
 			case 11:
-				obj11.focusOut();
+				CheckHasFocusOut::focusOut(obj11);
 				break;
 			case 12:
-				obj12.focusOut();
+				CheckHasFocusOut::focusOut(obj12);
 				break;
 			case 13:
-				obj13.focusOut();
+				CheckHasFocusOut::focusOut(obj13);
 				break;
 			case 14:
-				obj14.focusOut();
+				CheckHasFocusOut::focusOut(obj14);
 				break;
 			case 15:
-				obj15.focusOut();
+				CheckHasFocusOut::focusOut(obj15);
 				break;
 			case 16:
-				obj16.focusOut();
+				CheckHasFocusOut::focusOut(obj16);
 				break;
 			case 17:
-				obj17.focusOut();
+				CheckHasFocusOut::focusOut(obj17);
 				break;
 			case 18:
-				obj18.focusOut();
+				CheckHasFocusOut::focusOut(obj18);
 				break;
 			case 19:
-				obj19.focusOut();
+				CheckHasFocusOut::focusOut(obj19);
 				break;
 		}
 	DrawFinish();
