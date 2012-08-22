@@ -32,7 +32,7 @@ private:
 
 
 //==================================Traits=====================================
-//SeenManagerのchangeForcusのための型特性。
+//SeenGroupのchangeForcusのための型特性。
 template<typename T>struct Traits{typedef T& ParameterType;};
 template<typename T>struct Traits<T*>{typedef T* ParameterType;};
 template<typename T>struct Traits<T&>{typedef T& ParameterType;};
@@ -63,6 +63,39 @@ public:
 	typedef decltype(check<TargetClass>(nullptr)) Result;
 
 };
+//==============================CheckHasFocusOn==================================
+//focusOnがあるかしらべ、ない場合はデフォルトのfocusOnを呼ぶ
+class CheckHasFocusOn{
+private:
+
+	class NotHasFocusOn{
+	public:
+		template<class T>
+		static void focusOn(T&){}
+	};
+
+	class HasFocusOn{
+	public:
+		template<class T>
+		static void focusOn(T& obj){obj.focusOn();}
+	};
+
+	template<typename T>
+	static HasFocusOn check(decltype(static_cast<T*>(nullptr)->focusOn())*);
+
+	template<typename>
+	static NotHasFocusOn check(...);
+
+
+public:
+	template<class TargetClass>
+	static void focusOn(TargetClass& obj){
+		typedef decltype(check<TargetClass>(nullptr)) Result;
+		Result::focusOn(obj);
+	}
+
+};
+
 //==============================CheckHasFocusOut==================================
 //focusOutがあるかしらべ、ない場合はデフォルトのfocusOutを呼ぶ
 class CheckHasFocusOut{
@@ -99,11 +132,15 @@ public:
 
 
 //==================================Dummy=====================================
-//SeenManagerにデフォルト引数として渡すためのダミー
+//SeenGroupにデフォルト引数として渡すためのダミー
 //focusOnを提供していないのはDummyにfocusを入れることは不正なため
 template<int ID>
 struct Dummy{
 	
+	void focusOn(){
+		static_assert(false,"Can not forcus On Dummy.");
+	}
+
 	template<class T>
 	void run(T& Manager){}
 	

@@ -7,31 +7,15 @@ Copyright (C) 2012 つららソフト
 作成者  いかろ
 動作環境 VC++ 2010 Express Edition
 作成日時 2012/08/04 21:38
-最終更新 2012/08/19 20:40
+最終更新 2012/08/22 22:00
 
-バージョン 0.998
+バージョン 0.999
 
-<更新履歴>
- ・2012/08/04 21:38
-	暫定版完成
- ・2012/08/09 22:37
-	Policyいくつか追加
-	それに伴いテンプレート引数変更
- ・2012/08/13 21:48
-	Event機構追加
- ・2012/08/10 22:37
-	名前つきテンプレート引数に変更
- ・2012/08/17 21:37
-	ファイルわけ、整理
- ・2012/08/18 20:32
-	Event関係のバグ修正
- ・2012/08/18 22:04
-	パラメータありのfocusOnが必要ない場合はParameterのtypedefが不要なようにした
 
 
 <更新予定>
  ・ダイナミック版を作る
- ・focusOn()を不要にする
+ 
 
 <概要>
 WingLibraryの一部として提供され、
@@ -48,13 +32,13 @@ helper.hpp
 <クラス構成>
 wing名前空間内のseen_transition名前空間内にまとめられています。
 いくつかのクラスによって構成されていますが、クライアントが使用するクラスは
-基本的にSeenManagerクラスのみです。
+基本的にSeenGroupクラスのみです。
 
-SeenManagerはシーンを管理するクラスで、シーンを現すクラスは
+SeenGroupはいくつかのシーンをグループとしてまとめて管理するクラスで、個々のシーンを現すクラスは
 テンプレート引数として渡します。
 
 <クラスの動作及び相互作用>
-SeenManagerのrunを呼ぶと自動的にフォーカスが入ったオブジェクトが実行されます。
+SeenGroupのrunを呼ぶと自動的にフォーカスが入ったシーンオブジェクトが実行されます。
 
 <使い方>
 1.シーンをあらわす具体的なクラスを実装する。
@@ -63,32 +47,34 @@ SeenManagerのrunを呼ぶと自動的にフォーカスが入ったオブジェクトが実行されます。
 *typedef (型) Parameter;
 パラメータありのfocusOn(後述)が呼ばれたときの受け取る引数の型(複数受け取る場合はオブジェクト)
 
-・void focusOn();
-フォーカスが入ったとき呼ばれる
+*void focusOn();
+フォーカスが入ったとき呼ばれるコンストラクタのようなもの。
+定義されていない場合はデフォルト(なにもしない)のものが呼ばれる。
 
 *void focusOn(Parameter);
-フォーカスが入ったとき呼ばれる(パラメータを受け取る)
+フォーカスが入ったとき呼ばれる(パラメータを受け取る)。
 
 
 ・template<class T> void run(T& Manager);
 実行内容を書く。また、Managerへ参照を受け取れる(changeFocusを呼ぶため)
 
 *void focusOut();
-フォーカスが外れたときに呼ばれる
+フォーカスが外れたときに呼ばれるデストラクタのようなもの。
+定義されていない場合はデフォルトのものが呼ばれる
 
-・template<> void catchEvent<受け取りたいイベントの型>()
+*template<> void catchEvent<受け取りたいイベントの型>()
 パラメータなしのイベントを受け取るための特殊化
 
-・template<> void catchEvent<受け取りたいイベントの型>(受け取りたいイベントの型 e)
+*template<> void catchEvent<受け取りたいイベントの型>(受け取りたいイベントの型 e)
 パラメータありのイベントを受け取るための特殊化
 
 となっています。
 また、publicな領域に「UNDEFINED_EVENT_CHATCHER」マクロをおいてください。
 
 
-2.SeenをSeenManagerのテンプレートパラメータとして渡す(typedefすること推奨)
-※SeenManager 変数名;という形で宣言すると関数宣言として扱われるようなので
-auto GameManager = SeenManager;
+2.SeenをSeenGroupのテンプレートパラメータとして渡す(typedefすること推奨)
+※SeenGroup 変数名;という形で宣言すると関数宣言として扱われるようなので
+auto GameManager = SeenGroup;
 のような書き方をすること推奨。
 また、コンストラクタの引数はテンプレートパラメータでわたしたクラスのオブジェクトを渡してください。
 
@@ -137,11 +123,11 @@ struct default_policy_args;
 template <class P1, class P2>
 struct policy_selector;
 
-//========================================SeenManager===================================
+//========================================SeenGroup===================================
 
 
 template <class SeenHolder, class P1=default_policy_args, class P2=default_policy_args >
-class SeenManager:public policy_selector<P1, P2>::FPSPolicy,
+class SeenGroup:public policy_selector<P1, P2>::FPSPolicy,
 				  public policy_selector<P1, P2>::RefreshPolicy
 	{
 private:
@@ -177,9 +163,9 @@ private:
 
 public:
 
-	SeenManager(Defalt a, U1 a1=Dummy<1>(), U2 a2=Dummy<2>(), U3 a3=Dummy<3>(), U4 a4=Dummy<4>(), U5 a5=Dummy<5>(), U6 a6=Dummy<6>(), U7 a7=Dummy<7>(), U8 a8=Dummy<8>(), U9 a9=Dummy<9>(), U10 a10=Dummy<10>(), U11 a11=Dummy<11>(), U12 a12=Dummy<12>(), U13 a13=Dummy<13>(), U14 a14=Dummy<14>(), U15 a15=Dummy<15>(), U16 a16=Dummy<16>(), U17 a17=Dummy<17>(), U18 a18=Dummy<18>(), U19 a19=Dummy<19>());
-	SeenManager(const SeenManager<SeenHolder,P1, P2>& Obj);
-	SeenManager& operator=(const SeenManager<SeenHolder,P1, P2>& Obj);
+	SeenGroup(Defalt a, U1 a1=Dummy<1>(), U2 a2=Dummy<2>(), U3 a3=Dummy<3>(), U4 a4=Dummy<4>(), U5 a5=Dummy<5>(), U6 a6=Dummy<6>(), U7 a7=Dummy<7>(), U8 a8=Dummy<8>(), U9 a9=Dummy<9>(), U10 a10=Dummy<10>(), U11 a11=Dummy<11>(), U12 a12=Dummy<12>(), U13 a13=Dummy<13>(), U14 a14=Dummy<14>(), U15 a15=Dummy<15>(), U16 a16=Dummy<16>(), U17 a17=Dummy<17>(), U18 a18=Dummy<18>(), U19 a19=Dummy<19>());
+	SeenGroup(const SeenGroup<SeenHolder,P1, P2>& Obj);
+	SeenGroup& operator=(const SeenGroup<SeenHolder,P1, P2>& Obj);
 
 	void run();
 	int getNowTarget() const{return NowTarget;}
@@ -196,26 +182,26 @@ public:
 		void throwEvent(typename wing::seen_transition::Traits<Event>::ParameterType e);
 
 
-	template<> void changeFocus<Defalt>(){focusOut();NowTarget=0;obj0.focusOn();}
-	template<> void changeFocus<U1>(){focusOut();NowTarget=1;obj1.focusOn();}
-	template<> void changeFocus<U2>(){focusOut();NowTarget=2;obj2.focusOn();}
-	template<> void changeFocus<U3>(){focusOut();NowTarget=3;obj3.focusOn();}
-	template<> void changeFocus<U4>(){focusOut();NowTarget=4;obj4.focusOn();}
-	template<> void changeFocus<U5>(){focusOut();NowTarget=5;obj5.focusOn();}
-	template<> void changeFocus<U6>(){focusOut();NowTarget=6;obj6.focusOn();}
-	template<> void changeFocus<U7>(){focusOut();NowTarget=7;obj7.focusOn();}
-	template<> void changeFocus<U8>(){focusOut();NowTarget=8;obj8.focusOn();}
-	template<> void changeFocus<U9>(){focusOut();NowTarget=9;obj9.focusOn();}
-	template<> void changeFocus<U10>(){focusOut();NowTarget=10;obj10.focusOn();}
-	template<> void changeFocus<U11>(){focusOut();NowTarget=11;obj11.focusOn();}
-	template<> void changeFocus<U12>(){focusOut();NowTarget=12;obj12.focusOn();}
-	template<> void changeFocus<U13>(){focusOut();NowTarget=13;obj13.focusOn();}
-	template<> void changeFocus<U14>(){focusOut();NowTarget=14;obj14.focusOn();}
-	template<> void changeFocus<U15>(){focusOut();NowTarget=15;obj15.focusOn();}
-	template<> void changeFocus<U16>(){focusOut();NowTarget=16;obj16.focusOn();}
-	template<> void changeFocus<U17>(){focusOut();NowTarget=17;obj17.focusOn();}
-	template<> void changeFocus<U18>(){focusOut();NowTarget=18;obj18.focusOn();}
-	template<> void changeFocus<U19>(){focusOut();NowTarget=19;obj19.focusOn();}
+	template<> void changeFocus<Defalt>(){focusOut();NowTarget=0;CheckHasFocusOn::focusOn(obj0);}
+	template<> void changeFocus<U1>(){focusOut();NowTarget=1;CheckHasFocusOn::focusOn(obj1);}
+	template<> void changeFocus<U2>(){focusOut();NowTarget=2;CheckHasFocusOn::focusOn(obj2);}
+	template<> void changeFocus<U3>(){focusOut();NowTarget=3;CheckHasFocusOn::focusOn(obj3);}
+	template<> void changeFocus<U4>(){focusOut();NowTarget=4;CheckHasFocusOn::focusOn(obj4);}
+	template<> void changeFocus<U5>(){focusOut();NowTarget=5;CheckHasFocusOn::focusOn(obj5);}
+	template<> void changeFocus<U6>(){focusOut();NowTarget=6;CheckHasFocusOn::focusOn(obj6);}
+	template<> void changeFocus<U7>(){focusOut();NowTarget=7;CheckHasFocusOn::focusOn(obj7);}
+	template<> void changeFocus<U8>(){focusOut();NowTarget=8;CheckHasFocusOn::focusOn(obj8);}
+	template<> void changeFocus<U9>(){focusOut();NowTarget=9;CheckHasFocusOn::focusOn(obj9);}
+	template<> void changeFocus<U10>(){focusOut();NowTarget=10;CheckHasFocusOn::focusOn(obj10);}
+	template<> void changeFocus<U11>(){focusOut();NowTarget=11;CheckHasFocusOn::focusOn(obj11);}
+	template<> void changeFocus<U12>(){focusOut();NowTarget=12;CheckHasFocusOn::focusOn(obj12);}
+	template<> void changeFocus<U13>(){focusOut();NowTarget=13;CheckHasFocusOn::focusOn(obj13);}
+	template<> void changeFocus<U14>(){focusOut();NowTarget=14;CheckHasFocusOn::focusOn(obj14);}
+	template<> void changeFocus<U15>(){focusOut();NowTarget=15;CheckHasFocusOn::focusOn(obj15);}
+	template<> void changeFocus<U16>(){focusOut();NowTarget=16;CheckHasFocusOn::focusOn(obj16);}
+	template<> void changeFocus<U17>(){focusOut();NowTarget=17;CheckHasFocusOn::focusOn(obj17);}
+	template<> void changeFocus<U18>(){focusOut();NowTarget=18;CheckHasFocusOn::focusOn(obj18);}
+	template<> void changeFocus<U19>(){focusOut();NowTarget=19;CheckHasFocusOn::focusOn(obj19);}
 	
 
 private:
@@ -390,8 +376,8 @@ private:
 
 //コンストラクタ
 template <class SeenHolder, class P1, class P2 >
-wing::seen_transition::SeenManager<SeenHolder,P1, P2>::
-SeenManager(Defalt a, U1 a1, U2 a2, U3 a3, U4 a4, U5 a5, U6 a6, U7 a7, U8 a8, U9 a9, U10 a10, U11 a11, U12 a12, U13 a13, U14 a14, U15 a15, U16 a16, U17 a17, U18 a18, U19 a19):
+wing::seen_transition::SeenGroup<SeenHolder,P1, P2>::
+SeenGroup(Defalt a, U1 a1, U2 a2, U3 a3, U4 a4, U5 a5, U6 a6, U7 a7, U8 a8, U9 a9, U10 a10, U11 a11, U12 a12, U13 a13, U14 a14, U15 a15, U16 a16, U17 a17, U18 a18, U19 a19):
 		NowTarget(0),
 		obj0(a),
 		obj1(a1),
@@ -414,12 +400,13 @@ SeenManager(Defalt a, U1 a1, U2 a2, U3 a3, U4 a4, U5 a5, U6 a6, U7 a7, U8 a8, U9
 		obj18(a18),
 		obj19(a19)
 	{
+		CheckHasFocusOn::focusOn(obj0);
 	}
 
 
 //コピーコンストラクタ
 template <class SeenHolder, class P1, class P2 >
-wing::seen_transition::SeenManager<SeenHolder,P1, P2>::SeenManager(const SeenManager<SeenHolder,P1, P2>& Obj){
+wing::seen_transition::SeenGroup<SeenHolder,P1, P2>::SeenGroup(const SeenGroup<SeenHolder,P1, P2>& Obj){
 	Obj.obj0=obj0;
 	Obj.obj1=obj1;
 	Obj.obj2=obj2;
@@ -444,7 +431,7 @@ wing::seen_transition::SeenManager<SeenHolder,P1, P2>::SeenManager(const SeenMan
 
 //代入演算子
 template <class SeenHolder, class P1, class P2 >
-wing::seen_transition::SeenManager<SeenHolder,P1, P2>& wing::seen_transition::SeenManager<SeenHolder,P1, P2>::operator=(const SeenManager<SeenHolder,P1, P2>& Obj){
+wing::seen_transition::SeenGroup<SeenHolder,P1, P2>& wing::seen_transition::SeenGroup<SeenHolder,P1, P2>::operator=(const SeenGroup<SeenHolder,P1, P2>& Obj){
 	Obj.obj0=obj0;
 	Obj.obj1=obj1;
 	Obj.obj2=obj2;
@@ -471,7 +458,7 @@ wing::seen_transition::SeenManager<SeenHolder,P1, P2>& wing::seen_transition::Se
 //throwEvent
 template <class SeenHolder, class P1, class P2 >
 template<class Event>
-void wing::seen_transition::SeenManager<SeenHolder,P1, P2>::throwEvent(){
+void wing::seen_transition::SeenGroup<SeenHolder,P1, P2>::throwEvent(){
 	obj0.catchEvent<Event>();
 	obj1.catchEvent<Event>();
 	obj2.catchEvent<Event>();
@@ -496,7 +483,7 @@ void wing::seen_transition::SeenManager<SeenHolder,P1, P2>::throwEvent(){
 
 template <class SeenHolder, class P1, class P2 >
 template<class Event>
-void wing::seen_transition::SeenManager<SeenHolder,P1, P2>::throwEvent(typename wing::seen_transition::Traits<Event>::ParameterType e){
+void wing::seen_transition::SeenGroup<SeenHolder,P1, P2>::throwEvent(typename wing::seen_transition::Traits<Event>::ParameterType e){
 	obj0.catchEvent<Event>(e);
 	obj1.catchEvent<Event>(e);
 	obj2.catchEvent<Event>(e);
@@ -522,7 +509,7 @@ void wing::seen_transition::SeenManager<SeenHolder,P1, P2>::throwEvent(typename 
 
 
 template <class SeenHolder, class P1, class P2 >
-void wing::seen_transition::SeenManager<SeenHolder,P1, P2>::
+void wing::seen_transition::SeenGroup<SeenHolder,P1, P2>::
 	run(){
 	
 	DrawStart();
@@ -593,7 +580,7 @@ void wing::seen_transition::SeenManager<SeenHolder,P1, P2>::
 	}
 
 template <class SeenHolder, class P1, class P2 >
-void wing::seen_transition::SeenManager<SeenHolder,P1, P2>::
+void wing::seen_transition::SeenGroup<SeenHolder,P1, P2>::
 	focusOut(){
 		switch(NowTarget){
 			case 0:
