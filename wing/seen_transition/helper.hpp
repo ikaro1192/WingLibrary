@@ -11,11 +11,11 @@
 #include "../common.hpp"
 
 #define UNDEFINED_EVENT_CHATCHER template<class Event> void catchEvent(){}\
-	template<class Event> void catchEvent(typename wing::seen_transition::Traits<Event>::ParameterType e){}
+	template<class Event> void catchEvent(typename wing::scene_transition::checkCallType<Event>::Result e){}
 
 
 namespace wing{
-namespace seen_transition{
+namespace scene_transition{
 
 //================================FPS Policy===================================
 
@@ -32,8 +32,8 @@ private:
 
 
 //==================================Traits=====================================
-//SeenGroupのchangeForcusのための型特性。
-template<typename T>struct Traits{typedef T& ParameterType;};
+//SceneGroupのchangeForcusのための型特性。
+template<typename T>struct Traits{typedef const T& ParameterType;};
 template<typename T>struct Traits<T*>{typedef T* ParameterType;};
 template<typename T>struct Traits<T&>{typedef T& ParameterType;};
 template<> struct Traits<bool>{typedef bool ParameterType;};
@@ -130,10 +130,29 @@ public:
 };
 
 
+//====================checkCallType=============================
+//Event内部でEventの渡すタイプを指定できるようにする
+#define CALL_BY_CONST_REFERENCE struct ConstReference{}
+#define CALL_BY_REFERENCE struct Reference{}
+
+template<class TargetEventClass>
+class checkCallType{
+private:
+	template<typename U>
+	static const TargetEventClass& check(typename U::ConstReference*);
+
+	template<typename U>
+	static TargetEventClass& check(typename U::Reference*);
+	
+	template<typename>
+	static typename wing::scene_transition::Traits<TargetEventClass>::ParameterType check(...);
+public:
+	typedef decltype(check<TargetEventClass>(nullptr)) Result;
+};
+
 
 //==================================Dummy=====================================
-//SeenGroupにデフォルト引数として渡すためのダミー
-//focusOnを提供していないのはDummyにfocusを入れることは不正なため
+//SceneGroupにデフォルト引数として渡すためのダミー
 template<int ID>
 struct Dummy{
 	
@@ -147,9 +166,9 @@ struct Dummy{
 	UNDEFINED_EVENT_CHATCHER;
 };
 
-//================================SeenList===================================
+//================================SceneList===================================
 template < class Defalt,class S1=Dummy<1>,class S2=Dummy<2>,class S3=Dummy<3>,class S4=Dummy<4>,class S5=Dummy<5>,class S6=Dummy<6>,class S7=Dummy<7>,class S8=Dummy<8>,class S9=Dummy<9>,class S10=Dummy<10>,class S11=Dummy<11>,class S12=Dummy<12>,class S13=Dummy<13>,class S14=Dummy<14>,class S15=Dummy<15>,class S16=Dummy<16>,class S17=Dummy<17>,class S18=Dummy<18>,class S19=Dummy<19> >
-struct SeenList{
+struct SceneList{
 	typedef Defalt T0;
 	typedef S1 T1;
 	typedef S2 T2;
@@ -215,31 +234,31 @@ struct policy_selector
   : discriminator<P1, 1>, discriminator<P2, 2>{};
 
 
-//====================DefaultSeenContainerSafetyPolicy==================
-template<class Seen,class Key>
-class DefaultSeenContainerSafetyPolicy{
+//====================DefaultSceneContainerSafetyPolicy==================
+template<class Scene,class Key>
+class DefaultSceneContainerSafetyPolicy{
 public:
-	typedef std::shared_ptr<Seen> SeenPointee;
+	typedef std::shared_ptr<Scene> ScenePointee;
 
-	void append(std::shared_ptr<Seen> AppendSeen, Key AppendKey)throw(std::invalid_argument){
-		if (SeenData.find(AppendKey)==SeenData.end()){
-			SeenData[AppendKey]=AppendSeen;
+	void append(std::shared_ptr<Scene> AppendScene, Key AppendKey)throw(std::invalid_argument){
+		if (SceneData.find(AppendKey)==SceneData.end()){
+			SceneData[AppendKey]=AppendScene;
 		}else{
 			throw std::invalid_argument("すでに同じキーのオブジェクトが追加されている");
 		}
 	}
 
 protected:
-	SeenPointee get(Key Key_)throw(std::invalid_argument){
-		if (SeenData.find(AppendKey)!=SeenData.end()){
-			return SeenData[Key_];
+	ScenePointee get(Key Key_)throw(std::invalid_argument){
+		if (SceneData.find(AppendKey)!=SceneData.end()){
+			return SceneData[Key_];
 		}else{
 			throw std::invalid_argument("キーが存在しない");
 		}
 	}
 
 private:
-	std::unordered_map<Key,SeenPointee> SeenData;
+	std::unordered_map<Key,ScenePointee> SceneData;
 	
 };
 

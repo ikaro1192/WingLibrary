@@ -7,10 +7,9 @@ Copyright (C) 2012 つららソフト
 作成者  いかろ
 動作環境 VC++ 2010 Express Edition
 作成日時 2012/08/04 21:38
-最終更新 2012/08/22 22:00
+最終更新 2012/08/23 14:52
 
-バージョン 0.999
-
+バージョン 0.9995
 
 
 <更新予定>
@@ -30,15 +29,15 @@ WingLibraryの一部として提供され、
 helper.hpp
 
 <クラス構成>
-wing名前空間内のseen_transition名前空間内にまとめられています。
+wing名前空間内のscene_transition名前空間内にまとめられています。
 いくつかのクラスによって構成されていますが、クライアントが使用するクラスは
-基本的にSeenGroupクラスのみです。
+基本的にSceneGroupクラスのみです。
 
-SeenGroupはいくつかのシーンをグループとしてまとめて管理するクラスで、個々のシーンを現すクラスは
+SceneGroupはいくつかのシーンをグループとしてまとめて管理するクラスで、個々のシーンを現すクラスは
 テンプレート引数として渡します。
 
 <クラスの動作及び相互作用>
-SeenGroupのrunを呼ぶと自動的にフォーカスが入ったシーンオブジェクトが実行されます。
+SceneGroupのrunを呼ぶと自動的にフォーカスが入ったシーンオブジェクトが実行されます。
 
 <使い方>
 1.シーンをあらわす具体的なクラスを実装する。
@@ -72,9 +71,9 @@ SeenGroupのrunを呼ぶと自動的にフォーカスが入ったシーンオブジェクトが実行されます
 また、publicな領域に「UNDEFINED_EVENT_CHATCHER」マクロをおいてください。
 
 
-2.SeenをSeenGroupのテンプレートパラメータとして渡す(typedefすること推奨)
-※SeenGroup 変数名;という形で宣言すると関数宣言として扱われるようなので
-auto GameManager = SeenGroup;
+2.SceneをSceneGroupのテンプレートパラメータとして渡す(typedefすること推奨)
+※SceneGroup 変数名;という形で宣言すると関数宣言として扱われるようなので
+auto GameManager = SceneGroup;
 のような書き方をすること推奨。
 また、コンストラクタの引数はテンプレートパラメータでわたしたクラスのオブジェクトを渡してください。
 
@@ -93,7 +92,7 @@ auto GameManager = SeenGroup;
 
 
 namespace wing{
-namespace seen_transition{
+namespace scene_transition{
 
 template<typename T>
 struct Traits;
@@ -103,7 +102,7 @@ struct Dummy;
 
 
 template < class Defalt, class S1, class S2, class S3, class S4, class S5, class S6,class S7, class S8, class S9, class S10, class S11, class S12, class S13, class S14, class S15,class S16, class S17, class S18, class S19>
-struct SeenList;
+struct SceneList;
 
 class NoWaitFPSPolicy;
 
@@ -123,11 +122,12 @@ struct default_policy_args;
 template <class P1, class P2>
 struct policy_selector;
 
-//========================================SeenGroup===================================
+//========================================SceneGroup===================================
+//Sceneをまとめて扱うためのクラス
+//高速化(コンパイル時ディスパッチ)のためSeenを配列ではなく、個別のインスタンスとしている
 
-
-template <class SeenHolder, class P1=default_policy_args, class P2=default_policy_args >
-class SeenGroup:public policy_selector<P1, P2>::FPSPolicy,
+template <class SceneHolder, class P1=default_policy_args, class P2=default_policy_args >
+class SceneGroup:public policy_selector<P1, P2>::FPSPolicy,
 				  public policy_selector<P1, P2>::RefreshPolicy
 	{
 private:
@@ -135,51 +135,49 @@ private:
 	typedef typename policy_selector<P1, P2>::RefreshPolicy RefreshPolicy;
 
 
-
-
 	//changeFocusを特殊化をするため
 	template<class T> struct ChangeFocusSpecialization;
 	
-	typedef typename SeenHolder::T0 Defalt;
-	typedef typename SeenHolder::T1 U1;
-	typedef typename SeenHolder::T2 U2;
-	typedef typename SeenHolder::T3 U3;
-	typedef typename SeenHolder::T4 U4;
-	typedef typename SeenHolder::T5 U5;
-	typedef typename SeenHolder::T6 U6;
-	typedef typename SeenHolder::T7 U7;
-	typedef typename SeenHolder::T8 U8;
-	typedef typename SeenHolder::T9 U9;
-	typedef typename SeenHolder::T10 U10;
-	typedef typename SeenHolder::T11 U11;
-	typedef typename SeenHolder::T12 U12;
-	typedef typename SeenHolder::T13 U13;
-	typedef typename SeenHolder::T14 U14;
-	typedef typename SeenHolder::T15 U15;
-	typedef typename SeenHolder::T16 U16;
-	typedef typename SeenHolder::T17 U17;
-	typedef typename SeenHolder::T18 U18;
-	typedef typename SeenHolder::T19 U19;
+	typedef typename SceneHolder::T0 Defalt;
+	typedef typename SceneHolder::T1 U1;
+	typedef typename SceneHolder::T2 U2;
+	typedef typename SceneHolder::T3 U3;
+	typedef typename SceneHolder::T4 U4;
+	typedef typename SceneHolder::T5 U5;
+	typedef typename SceneHolder::T6 U6;
+	typedef typename SceneHolder::T7 U7;
+	typedef typename SceneHolder::T8 U8;
+	typedef typename SceneHolder::T9 U9;
+	typedef typename SceneHolder::T10 U10;
+	typedef typename SceneHolder::T11 U11;
+	typedef typename SceneHolder::T12 U12;
+	typedef typename SceneHolder::T13 U13;
+	typedef typename SceneHolder::T14 U14;
+	typedef typename SceneHolder::T15 U15;
+	typedef typename SceneHolder::T16 U16;
+	typedef typename SceneHolder::T17 U17;
+	typedef typename SceneHolder::T18 U18;
+	typedef typename SceneHolder::T19 U19;
 
 public:
 
-	SeenGroup(Defalt a, U1 a1=Dummy<1>(), U2 a2=Dummy<2>(), U3 a3=Dummy<3>(), U4 a4=Dummy<4>(), U5 a5=Dummy<5>(), U6 a6=Dummy<6>(), U7 a7=Dummy<7>(), U8 a8=Dummy<8>(), U9 a9=Dummy<9>(), U10 a10=Dummy<10>(), U11 a11=Dummy<11>(), U12 a12=Dummy<12>(), U13 a13=Dummy<13>(), U14 a14=Dummy<14>(), U15 a15=Dummy<15>(), U16 a16=Dummy<16>(), U17 a17=Dummy<17>(), U18 a18=Dummy<18>(), U19 a19=Dummy<19>());
-	SeenGroup(const SeenGroup<SeenHolder,P1, P2>& Obj);
-	SeenGroup& operator=(const SeenGroup<SeenHolder,P1, P2>& Obj);
+	SceneGroup(Defalt a, U1 a1=Dummy<1>(), U2 a2=Dummy<2>(), U3 a3=Dummy<3>(), U4 a4=Dummy<4>(), U5 a5=Dummy<5>(), U6 a6=Dummy<6>(), U7 a7=Dummy<7>(), U8 a8=Dummy<8>(), U9 a9=Dummy<9>(), U10 a10=Dummy<10>(), U11 a11=Dummy<11>(), U12 a12=Dummy<12>(), U13 a13=Dummy<13>(), U14 a14=Dummy<14>(), U15 a15=Dummy<15>(), U16 a16=Dummy<16>(), U17 a17=Dummy<17>(), U18 a18=Dummy<18>(), U19 a19=Dummy<19>());
+	SceneGroup(const SceneGroup<SceneHolder,P1, P2>& Obj);
+	SceneGroup& operator=(const SceneGroup<SceneHolder,P1, P2>& Obj);
 
 	void run();
 	int getNowTarget() const{return NowTarget;}
 	
 	//引数あり、なしの両方を提供
 	template<class T>
-		void changeFocus();
+		void changeFocus(){static_assert(false,"Bad focus change.");}
 	template<class T>
-		void changeFocus(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<T>::Result>::ParameterType p){ChangeFocusSpecialization<T>::func(p,*this);}
+		void changeFocus(typename Traits<typename wing::scene_transition::checkDefinedParameterTypedef<T>::Result>::ParameterType p){ChangeFocusSpecialization<T>::func(p,*this);}
 	
 	template<class Event>
 		void throwEvent();
 	template<class Event>
-		void throwEvent(typename wing::seen_transition::Traits<Event>::ParameterType e);
+		void throwEvent(typename wing::scene_transition::checkCallType<Event>::Result e);
 
 
 	template<> void changeFocus<Defalt>(){focusOut();NowTarget=0;CheckHasFocusOn::focusOn(obj0);}
@@ -233,9 +231,10 @@ private:
 
 	template<class T>
 	struct ChangeFocusSpecialization{
-		//不正な変更をエラーにするためわざと提供しない
 		template<class U>
-		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<T>::Result>::ParameterType p,U& obj);
+		static void func(typename Traits<typename wing::scene_transition::checkDefinedParameterTypedef<T>::Result>::ParameterType p,U& obj){
+			static_assert(false,"Bad focus change.");
+		}
 	};
 	
 
@@ -243,122 +242,122 @@ private:
 	template<>
 	struct ChangeFocusSpecialization<Defalt>{
 		template<class U>
-		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<Defalt>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=0;obj.obj0.focusOn(p);}
+		static void func(typename Traits<typename wing::scene_transition::checkDefinedParameterTypedef<Defalt>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=0;obj.obj0.focusOn(p);}
 	};
 	
 
 	template<>
 	struct ChangeFocusSpecialization<U1>{
 		template<class U>
-		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<U1>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=1;obj.obj1.focusOn(p);}
+		static void func(typename Traits<typename wing::scene_transition::checkDefinedParameterTypedef<U1>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=1;obj.obj1.focusOn(p);}
 	};
 
 	template<>
 	struct ChangeFocusSpecialization<U2>{
 		template<class U>
-		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<U2>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=2;obj.obj2.focusOn(p);}
+		static void func(typename Traits<typename wing::scene_transition::checkDefinedParameterTypedef<U2>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=2;obj.obj2.focusOn(p);}
 	};
 
 	template<>
 	struct ChangeFocusSpecialization<U3>{
 		template<class U>
-		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<U3>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=3;obj.obj3.focusOn(p);}
+		static void func(typename Traits<typename wing::scene_transition::checkDefinedParameterTypedef<U3>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=3;obj.obj3.focusOn(p);}
 	};
 
 	template<>
 	struct ChangeFocusSpecialization<U4>{
 		template<class U>
-		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<U4>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=4;obj.obj4.focusOn(p);}
+		static void func(typename Traits<typename wing::scene_transition::checkDefinedParameterTypedef<U4>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=4;obj.obj4.focusOn(p);}
 	};
 
 	template<>
 	struct ChangeFocusSpecialization<U5>{
 		template<class U>
-		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<U5>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=5;obj.obj5.focusOn(p);}
+		static void func(typename Traits<typename wing::scene_transition::checkDefinedParameterTypedef<U5>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=5;obj.obj5.focusOn(p);}
 	};
 
 	template<>
 	struct ChangeFocusSpecialization<U6>{
 		template<class U>
-		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<U6>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=6;obj.obj6.focusOn(p);}
+		static void func(typename Traits<typename wing::scene_transition::checkDefinedParameterTypedef<U6>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=6;obj.obj6.focusOn(p);}
 	};
 
 	template<>
 	struct ChangeFocusSpecialization<U7>{
 		template<class U>
-		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<U7>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=7;obj.obj7.focusOn(p);}
+		static void func(typename Traits<typename wing::scene_transition::checkDefinedParameterTypedef<U7>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=7;obj.obj7.focusOn(p);}
 	};
 
 	template<>
 	struct ChangeFocusSpecialization<U8>{
 		template<class U>
-		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<U8>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=8;obj.obj8.focusOn(p);}
+		static void func(typename Traits<typename wing::scene_transition::checkDefinedParameterTypedef<U8>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=8;obj.obj8.focusOn(p);}
 	};
 
 	template<>
 	struct ChangeFocusSpecialization<U9>{
 		template<class U>
-		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<U9>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=9;obj.obj9.focusOn(p);}
+		static void func(typename Traits<typename wing::scene_transition::checkDefinedParameterTypedef<U9>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=9;obj.obj9.focusOn(p);}
 	};
 
 	template<>
 	struct ChangeFocusSpecialization<U10>{
 		template<class U>
-		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<U10>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=10;obj.obj10.focusOn(p);}
+		static void func(typename Traits<typename wing::scene_transition::checkDefinedParameterTypedef<U10>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=10;obj.obj10.focusOn(p);}
 	};
 
 	template<>
 	struct ChangeFocusSpecialization<U11>{
 		template<class U>
-		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<U11>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=11;obj.obj11.focusOn(p);}
+		static void func(typename Traits<typename wing::scene_transition::checkDefinedParameterTypedef<U11>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=11;obj.obj11.focusOn(p);}
 	};
 
 	template<>
 	struct ChangeFocusSpecialization<U12>{
 		template<class U>
-		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<U12>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=12;obj.obj12.focusOn(p);}
+		static void func(typename Traits<typename wing::scene_transition::checkDefinedParameterTypedef<U12>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=12;obj.obj12.focusOn(p);}
 	};
 
 	template<>
 	struct ChangeFocusSpecialization<U13>{
 		template<class U>
-		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<U13>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=13;obj.obj13.focusOn(p);}
+		static void func(typename Traits<typename wing::scene_transition::checkDefinedParameterTypedef<U13>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=13;obj.obj13.focusOn(p);}
 	};
 
 	template<>
 	struct ChangeFocusSpecialization<U14>{
 		template<class U>
-		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<U14>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=14;obj.obj14.focusOn(p);}
+		static void func(typename Traits<typename wing::scene_transition::checkDefinedParameterTypedef<U14>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=14;obj.obj14.focusOn(p);}
 	};
 
 	template<>
 	struct ChangeFocusSpecialization<U15>{
 		template<class U>
-		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<U15>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=15;obj.obj15.focusOn(p);}
+		static void func(typename Traits<typename wing::scene_transition::checkDefinedParameterTypedef<U15>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=15;obj.obj15.focusOn(p);}
 	};
 
 	template<>
 	struct ChangeFocusSpecialization<U16>{
 		template<class U>
-		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<U16>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=16;obj.obj16.focusOn(p);}
+		static void func(typename Traits<typename wing::scene_transition::checkDefinedParameterTypedef<U16>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=16;obj.obj16.focusOn(p);}
 	};
 
 	template<>
 	struct ChangeFocusSpecialization<U17>{
 		template<class U>
-		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<U17>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=17;obj.obj17.focusOn(p);}
+		static void func(typename Traits<typename wing::scene_transition::checkDefinedParameterTypedef<U17>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=17;obj.obj17.focusOn(p);}
 	};
 
 	template<>
 	struct ChangeFocusSpecialization<U18>{
 		template<class U>
-		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<U18>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=18;obj.obj18.focusOn(p);}
+		static void func(typename Traits<typename wing::scene_transition::checkDefinedParameterTypedef<U18>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=18;obj.obj18.focusOn(p);}
 	};
 
 	template<>
 	struct ChangeFocusSpecialization<U19>{
 		template<class U>
-		static void func(typename Traits<typename wing::seen_transition::checkDefinedParameterTypedef<U19>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=19;obj.obj19.focusOn(p);}
+		static void func(typename Traits<typename wing::scene_transition::checkDefinedParameterTypedef<U19>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=19;obj.obj19.focusOn(p);}
 	};
 
 
@@ -375,9 +374,9 @@ private:
 //==================================method 実装====================================
 
 //コンストラクタ
-template <class SeenHolder, class P1, class P2 >
-wing::seen_transition::SeenGroup<SeenHolder,P1, P2>::
-SeenGroup(Defalt a, U1 a1, U2 a2, U3 a3, U4 a4, U5 a5, U6 a6, U7 a7, U8 a8, U9 a9, U10 a10, U11 a11, U12 a12, U13 a13, U14 a14, U15 a15, U16 a16, U17 a17, U18 a18, U19 a19):
+template <class SceneHolder, class P1, class P2 >
+wing::scene_transition::SceneGroup<SceneHolder,P1, P2>::
+SceneGroup(Defalt a, U1 a1, U2 a2, U3 a3, U4 a4, U5 a5, U6 a6, U7 a7, U8 a8, U9 a9, U10 a10, U11 a11, U12 a12, U13 a13, U14 a14, U15 a15, U16 a16, U17 a17, U18 a18, U19 a19):
 		NowTarget(0),
 		obj0(a),
 		obj1(a1),
@@ -405,8 +404,8 @@ SeenGroup(Defalt a, U1 a1, U2 a2, U3 a3, U4 a4, U5 a5, U6 a6, U7 a7, U8 a8, U9 a
 
 
 //コピーコンストラクタ
-template <class SeenHolder, class P1, class P2 >
-wing::seen_transition::SeenGroup<SeenHolder,P1, P2>::SeenGroup(const SeenGroup<SeenHolder,P1, P2>& Obj){
+template <class SceneHolder, class P1, class P2 >
+wing::scene_transition::SceneGroup<SceneHolder,P1, P2>::SceneGroup(const SceneGroup<SceneHolder,P1, P2>& Obj){
 	Obj.obj0=obj0;
 	Obj.obj1=obj1;
 	Obj.obj2=obj2;
@@ -430,8 +429,8 @@ wing::seen_transition::SeenGroup<SeenHolder,P1, P2>::SeenGroup(const SeenGroup<S
 }
 
 //代入演算子
-template <class SeenHolder, class P1, class P2 >
-wing::seen_transition::SeenGroup<SeenHolder,P1, P2>& wing::seen_transition::SeenGroup<SeenHolder,P1, P2>::operator=(const SeenGroup<SeenHolder,P1, P2>& Obj){
+template <class SceneHolder, class P1, class P2 >
+wing::scene_transition::SceneGroup<SceneHolder,P1, P2>& wing::scene_transition::SceneGroup<SceneHolder,P1, P2>::operator=(const SceneGroup<SceneHolder,P1, P2>& Obj){
 	Obj.obj0=obj0;
 	Obj.obj1=obj1;
 	Obj.obj2=obj2;
@@ -456,9 +455,9 @@ wing::seen_transition::SeenGroup<SeenHolder,P1, P2>& wing::seen_transition::Seen
 
 
 //throwEvent
-template <class SeenHolder, class P1, class P2 >
+template <class SceneHolder, class P1, class P2 >
 template<class Event>
-void wing::seen_transition::SeenGroup<SeenHolder,P1, P2>::throwEvent(){
+void wing::scene_transition::SceneGroup<SceneHolder,P1, P2>::throwEvent(){
 	obj0.catchEvent<Event>();
 	obj1.catchEvent<Event>();
 	obj2.catchEvent<Event>();
@@ -481,10 +480,10 @@ void wing::seen_transition::SeenGroup<SeenHolder,P1, P2>::throwEvent(){
 	obj19.catchEvent<Event>();
 }
 
-template <class SeenHolder, class P1, class P2 >
+template <class SceneHolder, class P1, class P2 >
 template<class Event>
-void wing::seen_transition::SeenGroup<SeenHolder,P1, P2>::throwEvent(typename wing::seen_transition::Traits<Event>::ParameterType e){
-	obj0.catchEvent<Event>(e);
+void wing::scene_transition::SceneGroup<SceneHolder,P1, P2>::throwEvent(typename wing::scene_transition::checkCallType<Event>::Result e){
+	obj0.catchEvent<Event>(static_cast<typename checkCallType<Event>::Result >(e));
 	obj1.catchEvent<Event>(e);
 	obj2.catchEvent<Event>(e);
 	obj3.catchEvent<Event>(e);
@@ -508,8 +507,8 @@ void wing::seen_transition::SeenGroup<SeenHolder,P1, P2>::throwEvent(typename wi
 
 
 
-template <class SeenHolder, class P1, class P2 >
-void wing::seen_transition::SeenGroup<SeenHolder,P1, P2>::
+template <class SceneHolder, class P1, class P2 >
+void wing::scene_transition::SceneGroup<SceneHolder,P1, P2>::
 	run(){
 	
 	DrawStart();
@@ -579,8 +578,8 @@ void wing::seen_transition::SeenGroup<SeenHolder,P1, P2>::
 
 	}
 
-template <class SeenHolder, class P1, class P2 >
-void wing::seen_transition::SeenGroup<SeenHolder,P1, P2>::
+template <class SceneHolder, class P1, class P2 >
+void wing::scene_transition::SceneGroup<SceneHolder,P1, P2>::
 	focusOut(){
 		switch(NowTarget){
 			case 0:
