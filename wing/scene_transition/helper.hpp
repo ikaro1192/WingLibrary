@@ -13,6 +13,9 @@
 #define UNDEFINED_EVENT_CHATCHER template<class Event> void catchEvent(){}\
 	template<class Event> void catchEvent(typename wing::scene_transition::checkCallType<Event>::Result e){}
 
+#define CALL_BY_CONST_REFERENCE struct ConstReference{}
+#define CALL_BY_REFERENCE struct Reference{}
+
 
 namespace wing{
 namespace scene_transition{
@@ -104,7 +107,7 @@ private:
 	class NotHasFocusOut{
 	public:
 		template<class T>
-		static void focusOut(T&){std::cout<<"no"<<std::endl;}
+		static void focusOut(T&){}
 	};
 
 	class HasFocusOut{
@@ -132,8 +135,6 @@ public:
 
 //====================checkCallType=============================
 //Event内部でEventの渡すタイプを指定できるようにする
-#define CALL_BY_CONST_REFERENCE struct ConstReference{}
-#define CALL_BY_REFERENCE struct Reference{}
 
 template<class TargetEventClass>
 class checkCallType{
@@ -148,6 +149,51 @@ private:
 	static typename wing::scene_transition::Traits<TargetEventClass>::ParameterType check(...);
 public:
 	typedef decltype(check<TargetEventClass>(nullptr)) Result;
+};
+
+//==============================CheckHasRun==================================
+//run(T& Manager, U& SuperManager)もしくはrun(Manager)があるか調べる。
+//ない場合はエラー
+class CheckHasRun{
+private:
+
+	class NotHasRun{
+	public:
+		template<class S, class T, class U>
+		static void run(S& obj, T& Manager,U&){static_assert(false,"This Class must have run(Manager) or run(Manager,SuperManager).");}
+	};
+
+
+	class HasOneParameterRun{
+	public:
+		template<class S, class T, class U>
+		static void run(S& obj, T& Manager,U&){obj.run(Manager);}
+	};
+
+	class HasTwoParameterRun{
+	public:
+		template<class S, class T, class U>
+		static void run(S& obj, T& Manager, U& SuperManager){obj.run(Manager,SuperManager);}
+	};
+
+	template<typename T>
+	static HasTwoParameterRun check(decltype(static_cast<T*>(nullptr)->run(std::cout,std::cin))*);
+
+	template<typename T>
+	static HasOneParameterRun check(decltype(static_cast<T*>(nullptr)->run(std::cout))*);
+
+
+	template<typename>
+	static NotHasRun check(...);
+
+
+public:
+	template<class TargetClass, class T, class U>
+	static void run(TargetClass& obj, T& Manager, U& SuperManager){
+		typedef decltype(check<TargetClass>(nullptr)) Result;
+		Result::run(obj,Manager,SuperManager);
+	}
+
 };
 
 

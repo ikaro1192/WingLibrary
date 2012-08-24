@@ -7,15 +7,13 @@ Copyright (C) 2012 つららソフト
 作成者  いかろ
 動作環境 VC++ 2010 Express Edition
 作成日時 2012/08/04 21:38
-最終更新 2012/08/23 14:52
+最終更新 2012/08/24 17:16
 
 バージョン 0.9995
 
 
-
 <更新予定>
  ・ダイナミック版を作る
- 
 
 <概要>
 WingLibraryの一部として提供され、
@@ -91,7 +89,6 @@ auto GameManager = SceneGroup;
 
 								  
 
-
 namespace wing{
 namespace scene_transition{
 
@@ -128,13 +125,13 @@ struct policy_selector;
 //高速化(コンパイル時ディスパッチ)のためSeenを配列ではなく、個別のインスタンスとしている
 
 template <class SceneHolder, class P1=default_policy_args, class P2=default_policy_args >
-class SceneGroup:public policy_selector<P1, P2>::FPSPolicy,
-				  public policy_selector<P1, P2>::RefreshPolicy
-	{
+class SceneGroup:public policy_selector<P1, P2>::FPSPolicy, public policy_selector<P1, P2>::RefreshPolicy{
 private:
 	typedef typename policy_selector<P1, P2>::FPSPolicy FPSPolicy;
 	typedef typename policy_selector<P1, P2>::RefreshPolicy RefreshPolicy;
 
+	template <class SceneHolder, class P1=default_policy_args, class P2=default_policy_args >
+	friend class SceneGroup;
 
 	//changeFocusを特殊化をするため
 	template<class T> struct ChangeFocusSpecialization;
@@ -167,7 +164,6 @@ public:
 	SceneGroup& operator=(const SceneGroup<SceneHolder,P1, P2>& Obj);
 
 	void run();
-	int getNowTarget() const{return NowTarget;}
 	
 	//引数あり、なしの両方を提供
 	template<class T>
@@ -181,29 +177,16 @@ public:
 		void throwEvent(typename wing::scene_transition::checkCallType<Event>::Result e);
 
 
-	template<> void changeFocus<Defalt>(){focusOut();NowTarget=0;CheckHasFocusOn::focusOn(obj0);}
-	template<> void changeFocus<U1>(){focusOut();NowTarget=1;CheckHasFocusOn::focusOn(obj1);}
-	template<> void changeFocus<U2>(){focusOut();NowTarget=2;CheckHasFocusOn::focusOn(obj2);}
-	template<> void changeFocus<U3>(){focusOut();NowTarget=3;CheckHasFocusOn::focusOn(obj3);}
-	template<> void changeFocus<U4>(){focusOut();NowTarget=4;CheckHasFocusOn::focusOn(obj4);}
-	template<> void changeFocus<U5>(){focusOut();NowTarget=5;CheckHasFocusOn::focusOn(obj5);}
-	template<> void changeFocus<U6>(){focusOut();NowTarget=6;CheckHasFocusOn::focusOn(obj6);}
-	template<> void changeFocus<U7>(){focusOut();NowTarget=7;CheckHasFocusOn::focusOn(obj7);}
-	template<> void changeFocus<U8>(){focusOut();NowTarget=8;CheckHasFocusOn::focusOn(obj8);}
-	template<> void changeFocus<U9>(){focusOut();NowTarget=9;CheckHasFocusOn::focusOn(obj9);}
-	template<> void changeFocus<U10>(){focusOut();NowTarget=10;CheckHasFocusOn::focusOn(obj10);}
-	template<> void changeFocus<U11>(){focusOut();NowTarget=11;CheckHasFocusOn::focusOn(obj11);}
-	template<> void changeFocus<U12>(){focusOut();NowTarget=12;CheckHasFocusOn::focusOn(obj12);}
-	template<> void changeFocus<U13>(){focusOut();NowTarget=13;CheckHasFocusOn::focusOn(obj13);}
-	template<> void changeFocus<U14>(){focusOut();NowTarget=14;CheckHasFocusOn::focusOn(obj14);}
-	template<> void changeFocus<U15>(){focusOut();NowTarget=15;CheckHasFocusOn::focusOn(obj15);}
-	template<> void changeFocus<U16>(){focusOut();NowTarget=16;CheckHasFocusOn::focusOn(obj16);}
-	template<> void changeFocus<U17>(){focusOut();NowTarget=17;CheckHasFocusOn::focusOn(obj17);}
-	template<> void changeFocus<U18>(){focusOut();NowTarget=18;CheckHasFocusOn::focusOn(obj18);}
-	template<> void changeFocus<U19>(){focusOut();NowTarget=19;CheckHasFocusOn::focusOn(obj19);}
+
+
+	int getNowTarget() const{return NowTarget;}
+
 	
 
 private:
+
+	template<class T>
+	void run(T& Manager);
 
 	//フォーカスを変更するための補助関数
 	void focusOut();
@@ -360,7 +343,27 @@ private:
 		template<class U>
 		static void func(typename Traits<typename wing::scene_transition::checkDefinedParameterTypedef<U19>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=19;obj.obj19.focusOn(p);}
 	};
-
+public:
+	template<> void changeFocus<Defalt>(){focusOut();NowTarget=0;CheckHasFocusOn::focusOn(obj0);}
+	template<> void changeFocus<U1>(){focusOut();NowTarget=1;CheckHasFocusOn::focusOn(obj1);}
+	template<> void changeFocus<U2>(){focusOut();NowTarget=2;CheckHasFocusOn::focusOn(obj2);}
+	template<> void changeFocus<U3>(){focusOut();NowTarget=3;CheckHasFocusOn::focusOn(obj3);}
+	template<> void changeFocus<U4>(){focusOut();NowTarget=4;CheckHasFocusOn::focusOn(obj4);}
+	template<> void changeFocus<U5>(){focusOut();NowTarget=5;CheckHasFocusOn::focusOn(obj5);}
+	template<> void changeFocus<U6>(){focusOut();NowTarget=6;CheckHasFocusOn::focusOn(obj6);}
+	template<> void changeFocus<U7>(){focusOut();NowTarget=7;CheckHasFocusOn::focusOn(obj7);}
+	template<> void changeFocus<U8>(){focusOut();NowTarget=8;CheckHasFocusOn::focusOn(obj8);}
+	template<> void changeFocus<U9>(){focusOut();NowTarget=9;CheckHasFocusOn::focusOn(obj9);}
+	template<> void changeFocus<U10>(){focusOut();NowTarget=10;CheckHasFocusOn::focusOn(obj10);}
+	template<> void changeFocus<U11>(){focusOut();NowTarget=11;CheckHasFocusOn::focusOn(obj11);}
+	template<> void changeFocus<U12>(){focusOut();NowTarget=12;CheckHasFocusOn::focusOn(obj12);}
+	template<> void changeFocus<U13>(){focusOut();NowTarget=13;CheckHasFocusOn::focusOn(obj13);}
+	template<> void changeFocus<U14>(){focusOut();NowTarget=14;CheckHasFocusOn::focusOn(obj14);}
+	template<> void changeFocus<U15>(){focusOut();NowTarget=15;CheckHasFocusOn::focusOn(obj15);}
+	template<> void changeFocus<U16>(){focusOut();NowTarget=16;CheckHasFocusOn::focusOn(obj16);}
+	template<> void changeFocus<U17>(){focusOut();NowTarget=17;CheckHasFocusOn::focusOn(obj17);}
+	template<> void changeFocus<U18>(){focusOut();NowTarget=18;CheckHasFocusOn::focusOn(obj18);}
+	template<> void changeFocus<U19>(){focusOut();NowTarget=19;CheckHasFocusOn::focusOn(obj19);}
 
 };
 
@@ -577,7 +580,83 @@ void wing::scene_transition::SceneGroup<SceneHolder,P1, P2>::
 			break;	
 	}
 
-	}
+	wait();
+	DrawFinish();
+}
+
+template <class SceneHolder, class P1, class P2 >
+template<class T>
+void wing::scene_transition::SceneGroup<SceneHolder,P1, P2>::
+	run(T& Manager){
+		DrawStart();
+
+		switch(NowTarget){
+		case 0:
+			CheckHasRun::run(obj0,*this,Manager);
+			break;
+		case 1:
+			CheckHasRun::run(obj1,*this,Manager);
+			break;
+		case 2:
+			CheckHasRun::run(obj2,*this,Manager);
+			break;
+		case 3:
+			CheckHasRun::run(obj3,*this,Manager);
+			break;
+		case 4:
+			CheckHasRun::run(obj4,*this,Manager);
+			break;
+		case 5:
+			CheckHasRun::run(obj5,*this,Manager);
+			break;
+		case 6:
+			CheckHasRun::run(obj6,*this,Manager);
+			break;
+		case 7:
+			CheckHasRun::run(obj7,*this,Manager);
+			break;
+		case 8:
+			CheckHasRun::run(obj8,*this,Manager);
+			break;
+		case 9:
+			CheckHasRun::run(obj9,*this,Manager);
+			break;
+		case 10:
+			CheckHasRun::run(obj10,*this,Manager);
+			break;
+		case 11:
+			CheckHasRun::run(obj11,*this,Manager);
+			break;
+		case 12:
+			CheckHasRun::run(obj12,*this,Manager);
+			break;
+		case 13:
+			CheckHasRun::run(obj13,*this,Manager);
+			break;
+		case 14:
+			CheckHasRun::run(obj14,*this,Manager);
+			break;
+		case 15:
+			CheckHasRun::run(obj15,*this,Manager);
+			break;
+		case 16:
+			CheckHasRun::run(obj16,*this,Manager);
+			break;
+		case 17:
+			CheckHasRun::run(obj17,*this,Manager);
+			break;
+		case 18:
+			CheckHasRun::run(obj18,*this,Manager);
+			break;
+		case 19:
+			CheckHasRun::run(obj19,*this,Manager);
+			break;
+		}
+		wait();
+		DrawFinish();
+
+}
+
 
 template <class SceneHolder, class P1, class P2 >
 void wing::scene_transition::SceneGroup<SceneHolder,P1, P2>::
@@ -644,7 +723,5 @@ void wing::scene_transition::SceneGroup<SceneHolder,P1, P2>::
 				CheckHasFocusOut::focusOut(obj19);
 				break;
 		}
-	DrawFinish();
-	wait();
 
 	}
