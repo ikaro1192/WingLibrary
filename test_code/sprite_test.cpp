@@ -14,13 +14,15 @@ private:
 public:
 
 
-	explicit Image(ImageData image):ImageList(10){ImageList.push_back(image);}
+	explicit Image(ImageData image):ImageList(16){ImageList.push_back(image);}
 	
 	template<typename Iterator>
-	Image(std::add_const<Iterator> begin,std::add_const<Iterator> end):ImageList(10){
+	Image(std::add_const<Iterator> begin, std::add_const<Iterator> end):ImageList(16){
+	
 		for(auto iter = begin; iter!=end; ++iter){
 			ImageList.push_back(*iter);
 		}
+
 	}
 
 	ImageData getImage(){return ImageList[NowFrame];}
@@ -79,10 +81,10 @@ public:
 	{
 
 		sx=10;
-		addEventCatcher("hoge", [this](){
+		addEventListener("hoge", [this](){
 			setLocation(this->sx,20);
 		});
-		addEventCatcher("bar", [this](){
+		addEventListener("bar", [this](){
 			setLocation(30,40);
 		});
 
@@ -128,4 +130,37 @@ TEST( Sprite_Test, getRadiusSquareTest ){
 
 
 }
+
+
+TEST( Hit_Check_Test, RectHit ){
+
+	wing::DefaltLoader Loader;
+	auto img = Loader.load();
+
+	TestSprite Hoge(100,100,img);
+
+	TestSprite Foo(50,80,img);
+	ASSERT_EQ(wing::sprite::checkRectHit(Hoge,Foo) , true);
+	ASSERT_EQ(wing::sprite::checkRectHit(Foo,Hoge) , true);
+
+
+	TestSprite Foo2(50,80,img,80,80);
+	ASSERT_EQ(wing::sprite::checkRectHit(Hoge,Foo2) , true);
+	ASSERT_EQ(wing::sprite::checkRectHit(Foo2,Hoge) , true);
+
+	
+	TestSprite Foo3(50,80,img,100,80);
+	ASSERT_EQ(wing::sprite::checkRectHit(Hoge,Foo3) , false);
+	ASSERT_EQ(wing::sprite::checkRectHit(Foo3,Hoge) , false);
+
+
+	TestSprite Foo4(50,80,img,80,120);
+	ASSERT_EQ(wing::sprite::checkRectHit(Hoge,Foo3) , false);
+	ASSERT_EQ(wing::sprite::checkRectHit(Foo3,Hoge) , false);
+
+
+
+
+}
+
 
