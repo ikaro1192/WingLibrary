@@ -19,7 +19,10 @@ namespace sprite{
 //当たり判定系の関数
 //矩形の判定
 template<class A, class B>
-bool checkRectHit(const A& obj1, const B& obj2);
+bool checkRectHit(const A& obj1, const B& obj2){
+	return ( ( obj1.getX() < obj2.getX() + obj2.getWidth() ) && ( obj1.getWidth() > obj2.getX() ) &&
+	( obj1.getY() < obj2.getY() + obj2.getHeight() ) && ( obj1.getHeight() > obj2.getY() ));
+}
 
 template<class A, class B>
 bool checkRectHit(const std::shared_ptr<A>& obj1, const std::shared_ptr<B>& obj2);
@@ -60,7 +63,7 @@ protected:
 	void setHitCheckRate(int HitCheckRate);
 	void setLocation(int x,int y);
 	void move(int dx,int dy);
-	void addEventCatcher(const char* EventName, std::function<void()> EventCatcher);
+	void addEventListener(const char* EventName, std::function<void()> EventListener);
 
 
 
@@ -78,7 +81,7 @@ private:
 		std::function<void()>,
 		std::hash<const char*>,
 		std::function<bool(const char*, const char*)>
-	> EventListener;
+	> DefinedEventListener;
 #pragma endregion
 
 
@@ -107,7 +110,7 @@ inline Sprite<DrawEngine>::Sprite(int width, int height, typename DrawEngine::Im
 	  HitCheckRate(hit_check_rate)
 	  {
 		//なぜかVS2010では初期化子リストでできないのでこうしている
-		EventListener = std::unordered_map<const char*,std::function<void()>,std::hash<const char*>,std::function<bool(const char*, const char*)> >
+		DefinedEventListener = std::unordered_map<const char*,std::function<void()>,std::hash<const char*>,std::function<bool(const char*, const char*)> >
 		  (10,std::hash<const char*>(),
 		  [](const char* lhs,const char* rhs){return (strcmp(lhs, rhs) == 0)? true : false;});
 	  }
@@ -126,10 +129,10 @@ template<typename DrawEngine>
 inline void Sprite<DrawEngine>::move(int dx,int dy){PosX+=dx;PosY+=dy;}
 
 template<typename DrawEngine>
-inline void Sprite<DrawEngine>::addEventCatcher(const char* EventName, std::function<void()> EventCatcher){EventListener[EventName]=EventCatcher;}
+inline void Sprite<DrawEngine>::addEventListener(const char* EventName, std::function<void()> EventListener){DefinedEventListener[EventName]=EventListener;}
 
 template<typename DrawEngine>
-inline void Sprite<DrawEngine>::chatchEvent(const char* EventName){EventListener.at(EventName)();}
+inline void Sprite<DrawEngine>::chatchEvent(const char* EventName){DefinedEventListener.at(EventName)();}
 
 template<typename DrawEngine>
 inline	int Sprite<DrawEngine>::getX() const {return PosX;}
