@@ -20,8 +20,29 @@ namespace sprite{
 //‹éŒ`‚Ì”»’è
 template<class A, class B>
 bool checkRectHit(const A& obj1, const B& obj2){
-	return ( ( obj1.getX() < obj2.getX() + obj2.getWidth() ) && ( obj1.getWidth() > obj2.getX() ) &&
-	( obj1.getY() < obj2.getY() + obj2.getHeight() ) && ( obj1.getHeight() > obj2.getY() ));
+
+	auto WidthOffset1 = (obj1.getWidth() * obj1.getHitCheckRate() ) / 100;
+	auto PosXOffset1 = (obj1.getWidth() - WidthOffset1 )/2;
+	auto HeightOffset1 = (obj1.getHeight() * obj1.getHitCheckRate() ) / 100;
+	auto PosYOffset1 = (obj1.getHeight() - HeightOffset1 )/2;
+
+	auto WidthOffset2 = (obj2.getWidth() * obj2.getHitCheckRate() ) / 100;
+	auto PosXOffset2 = (obj2.getWidth() - WidthOffset2 )/2;
+	auto HeightOffset2 = (obj2.getHeight() * obj2.getHitCheckRate() ) / 100;
+	auto PosYOffset2 = (obj2.getHeight() - HeightOffset2 )/2;
+
+	auto XStart1 = obj1.getX() + PosXOffset1;
+	auto XEnd1 = XStart1 + WidthOffset1;
+	auto YStart1 = obj1.getY() + PosYOffset1;
+	auto YEnd1 = YStart1 + WidthOffset1;
+
+	auto XStart2 = obj2.getX() + PosXOffset2;
+	auto XEnd2 = XStart2 + WidthOffset2;
+	auto YStart2 = obj2.getY() + PosYOffset2;
+	auto YEnd2 = YStart2 + WidthOffset2;
+
+	return ( XStart1 < XEnd2 ) && ( XEnd1 > XStart2 ) ? 
+	( YStart1 < YEnd2 ) && ( YEnd1 > YStart2 ) : false;
 }
 
 template<class A, class B>
@@ -48,6 +69,8 @@ public:
 	void chatchEvent(const char* EventName);
 	int getX() const;
 	int getY() const;
+	int getHitCheckRate() const;
+
 
 	void draw(){DrawEngine::draw(*this);}
 
@@ -145,6 +168,11 @@ inline	int Sprite<DrawEngine>::getWidth() const {return Width;}
 
 template<typename DrawEngine>
 inline	int Sprite<DrawEngine>::getHeight() const {return Height;}
+
+
+template<typename DrawEngine>
+inline	int Sprite<DrawEngine>::getHitCheckRate() const{return HitCheckRate;}
+
 
 
 template<typename DrawEngine>
