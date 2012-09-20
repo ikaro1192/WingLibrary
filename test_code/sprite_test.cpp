@@ -158,9 +158,37 @@ TEST( Hit_Check_Test, RectHit ){
 	ASSERT_EQ(wing::sprite::checkRectHit(Hoge,Foo3) , false);
 	ASSERT_EQ(wing::sprite::checkRectHit(Foo3,Hoge) , false);
 
+}
 
+TEST( Hit_Check_Test, RectHitChangeRate ){
+	wing::DefaltLoader Loader;
+	auto img = Loader.load();
+
+	TestSprite Hoge(100,100,img,0,0,80);
+	TestSprite Foo(100,100,img,70,70,100);
+
+	ASSERT_EQ(wing::sprite::checkRectHit(Hoge, Foo) , true);
+	ASSERT_EQ(wing::sprite::checkRectHit(Foo, Hoge) , true);
+
+	TestSprite Foo1(100,100,img,90,70,100);
+
+	ASSERT_EQ(wing::sprite::checkRectHit(Hoge, Foo1) , false);
+	ASSERT_EQ(wing::sprite::checkRectHit(Foo1, Hoge) , false);
+
+	TestSprite Foo2(100,100,img,70,90,100);
+
+	ASSERT_EQ(wing::sprite::checkRectHit(Hoge, Foo2) , false);
+	ASSERT_EQ(wing::sprite::checkRectHit(Foo2, Hoge) , false);
+
+	TestSprite Foo3(5, 5, img);
+
+	ASSERT_EQ(wing::sprite::checkRectHit(Hoge, Foo3) , false);
+	ASSERT_EQ(wing::sprite::checkRectHit(Foo3, Hoge) , false);
+
+	TestSprite Foo4(5, 5, img, 10,10);
+
+	ASSERT_EQ(wing::sprite::checkRectHit(Hoge, Foo4) , true);
+	ASSERT_EQ(wing::sprite::checkRectHit(Foo4, Hoge) , true);
 
 
 }
-
-
