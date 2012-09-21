@@ -1,6 +1,7 @@
 #include "../gtest/gtest.h"
 #include "../wing/sprite/sprite.hpp"
 #include <iostream>
+#include <math.h>
 #pragma warning( disable : 4512 )
 
 
@@ -190,5 +191,33 @@ TEST( Hit_Check_Test, RectHitChangeRate ){
 	ASSERT_EQ(wing::sprite::checkRectHit(Hoge, Foo4) , true);
 	ASSERT_EQ(wing::sprite::checkRectHit(Foo4, Hoge) , true);
 
+
+}
+
+TEST( Hit_Check_Test, CircleHit ){
+	
+	wing::DefaltLoader Loader;
+	auto img = Loader.load();
+
+	{
+		TestSprite Hoge(60,60,img,-10,20);
+		TestSprite Foo(80,80,img,80,-10);
+
+		ASSERT_EQ(wing::sprite::checkCircleHit(Hoge, Foo) , false);
+	}
+
+	{
+		TestSprite Hoge(60,60,img,-0,0);
+		TestSprite Foo(80,80,img,20,0);
+
+		ASSERT_EQ(wing::sprite::checkCircleHit(Hoge, Foo) , true);
+	}
+
+	{
+		TestSprite Hoge(60,60,img,0,0);
+		TestSprite Foo(80,80,img,70,0);
+
+		ASSERT_EQ(wing::sprite::checkCircleHit(Hoge, Foo) , false);
+	}
 
 }
