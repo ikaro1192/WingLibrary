@@ -12,6 +12,7 @@
 
 
 
+
 namespace wing{
 namespace sprite{
 
@@ -19,7 +20,7 @@ namespace sprite{
 //ìñÇΩÇËîªíËånÇÃä÷êî
 //ãÈå`ÇÃîªíË
 template<class A, class B>
-bool checkRectHit(const A& obj1, const B& obj2){
+inline bool checkRectHit(const A& obj1, const B& obj2){
 
 	auto WidthOffset1 = (obj1.getWidth() * obj1.getHitCheckRate() ) / 100;
 	auto PosXOffset1 = (obj1.getWidth() - WidthOffset1 )/2;
@@ -45,15 +46,21 @@ bool checkRectHit(const A& obj1, const B& obj2){
 	( YStart1 < YEnd2 ) && ( YEnd1 > YStart2 ) : false;
 }
 
-template<class A, class B>
-bool checkRectHit(const std::shared_ptr<A>& obj1, const std::shared_ptr<B>& obj2);
 
 //â~îªíË
 template<class A, class B>
-bool checkCircleHit(const A& obj1, const B& obj2);
+bool checkCircleHit(const A& obj1, const B& obj2){
+	
+	auto X1 = obj1.getX() + obj1.getWidth()/2;
+	auto X2 = obj2.getX() + obj2.getWidth()/2;
+	auto Y1 =  obj1.getY() + obj1.getHeight()/2;
+	auto Y2 =  obj2.getY() + obj2.getHeight()/2;
 
-template<class A, class B>
-bool checkCircleHit(const std::shared_ptr<A>& obj1, const std::shared_ptr<B>& obj2);
+
+	return (X1 - X2) * (X1 - X2) + (Y1 - Y2) * (Y1 - Y2) <= (obj1.getRadiusSquare() + obj2.getRadiusSquare()) * (obj1.getRadiusSquare() + obj2.getRadiusSquare());
+
+}
+
 
 
 
