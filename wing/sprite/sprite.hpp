@@ -20,7 +20,160 @@ namespace sprite{
 //当たり判定系の関数
 //矩形の判定
 template<class A, class B>
+bool checkRectHit(const A& obj1, const B& obj2);
+
+//円判定
+template<class A, class B>
+inline bool checkCircleHit(const A& obj1, const B& obj2);
+
+
+//===============================Sprite================================
+/*定義済みイベント
+Update
+OutCanvas
+Delete
+*/
+
+template<typename DrawEngine>
+class Sprite : public DrawEngine{
+public:
+
+	typedef typename DrawEngine::ImageType ImageType;
+
+	Sprite(int width, int height,ImageType img, int x=0 , int y=0 , int hit_check_rate=100, bool trance_flag=false);
+
+	
+	void chatchEvent(const char* EventName);
+	int getX() const;
+	int getY() const;
+	int getHitCheckRate() const;
+	bool getDeathFlag() const{return DeathFlag;}
+	const ImageType& getImage() const{return image;}
+	int getWidth() const;
+	int getHeight() const;
+	int getRadiusSquare() const;
+	
+	virtual ~Sprite(){}
+
+protected:
+	//セッター系は継承先でのみ使える
+	void setHitCheckRate(int HitCheckRate);
+	void setLocation(int x,int y);
+	void move(int dx,int dy);
+	void addEventListener(const char* EventName, std::function<void()> EventListener);
+	void removeEventListener(const char* EventName){DefinedEventListener.erase(EventName);}
+	void kill();
+
+#pragma region PrivateMember
+private:
+	ImageType image;
+	int PosX;
+	int PosY;
+	int Width;
+	int Height;
+	bool TranceFlag;
+	bool DeathFlag;
+	int HitCheckRate;
+	std::unordered_map<
+		const char*,
+		std::function<void()>,
+		std::hash<const char*>,
+		std::function<bool(const char*, const char*)>
+	> DefinedEventListener;
+#pragma endregion
+
+};
+
+/*
+FocusOn
+NowFocus
+Update
+FocusOut
+Delete
+*/
+template<typename DrawEngine>
+class Canvas{
+public:
+	Canvas(int width, int height):
+	Width(width),
+	Height(height)
+	{}
+	int getPosX() const;
+	int getPosY() const;
+	int getWidth() const;
+	int getHeight() const;
+
+	void update(){
+
+
+		for(auto iter = ChildList.begin(); iter != ChildList.end(); ++iter){
+			(*iter)->update();
+		}
+
+
+		auto NewEndIter = std::remove_if(SpriteList.begin(),SpriteList.end(),
+			[](const std::shared_ptr<Sprite<DrawEngine> >& obj){return obj->getDeathFlag() == true;}
+		);
+
+		SpriteList.erase( NewEndIter, SpriteList.end() );
+
+		for(auto iter = SpriteList.begin(); iter != SpriteList.end(); ++iter){
+			(*iter)->chatchEvent("update");
+		}
+
+		//this->chatchEvent("update");
+
+	}
+	
+	void addSprite(const Sprite<DrawEngine>& sprite);
+	void addChild(const std::shared_ptr<Canvas>& child);
+
+	void chatchEvent(const char* EventName);
+
+
+protected:
+	void addEventListener(const char* EventName, std::function<void()> EventListener);
+
+
+#pragma region PrivateMember
+private:
+	int PosX;
+	int PosY;
+	int Width;
+	int Height;
+
+
+	std::vector<std::shared_ptr<Canvas> > ChildList;
+	std::vector<std::shared_ptr<Sprite<DrawEngine> > > SpriteList;
+
+	std::unordered_map<
+		const char*,
+		std::function<void()>,
+		std::hash<const char*>,
+		std::function<bool(const char*, const char*)>
+	> DefinedEventListener;
+
+
+#pragma endregion
+
+};
+
+
+
+}}
+
+
+//==========================method定義================
+
+
+namespace wing{
+namespace sprite{
+
+template<class A, class B>
 inline bool checkRectHit(const A& obj1, const B& obj2){
+
+	if (&obj1==&obj2) return false;
+
 
 	auto WidthOffset1 = (obj1.getWidth() * obj1.getHitCheckRate() ) / 100;
 	auto PosXOffset1 = (obj1.getWidth() - WidthOffset1 )/2;
@@ -46,10 +199,10 @@ inline bool checkRectHit(const A& obj1, const B& obj2){
 	( YStart1 < YEnd2 ) && ( YEnd1 > YStart2 ) : false;
 }
 
-
-//円判定
 template<class A, class B>
-bool checkCircleHit(const A& obj1, const B& obj2){
+inline bool checkCircleHit(const A& obj1, const B& obj2){
+	
+	if (&obj1==&obj2) return false;
 	
 	auto X1 = obj1.getX() + obj1.getWidth()/2;
 	auto X2 = obj2.getX() + obj2.getWidth()/2;
@@ -63,72 +216,6 @@ bool checkCircleHit(const A& obj1, const B& obj2){
 
 
 
-
-template<typename DrawEngine>
-class Sprite : public DrawEngine{
-public:
-
-	typedef typename DrawEngine::ImageType ImageType;
-
-	Sprite(int width, int height,ImageType img, int x=0 , int y=0 , int hit_check_rate=100, bool trance_flag=false);
-
-	
-	void chatchEvent(const char* EventName);
-	int getX() const;
-	int getY() const;
-	int getHitCheckRate() const;
-
-
-	void draw(){DrawEngine::draw(*this);}
-
-	const ImageType& getImage() const{return image;}
-	int getWidth() const;
-	int getHeight() const;
-	int getRadiusSquare() const;
-	
-	virtual ~Sprite(){}
-
-protected:
-	//セッター系は継承先でのみ使える
-	void setHitCheckRate(int HitCheckRate);
-	void setLocation(int x,int y);
-	void move(int dx,int dy);
-	void addEventListener(const char* EventName, std::function<void()> EventListener);
-
-
-
-#pragma region PrivateMember
-private:
-	ImageType image;
-	int PosX;
-	int PosY;
-	int Width;
-	int Height;
-	bool TranceFlag;
-	int HitCheckRate;
-	std::unordered_map<
-		const char*,
-		std::function<void()>,
-		std::hash<const char*>,
-		std::function<bool(const char*, const char*)>
-	> DefinedEventListener;
-#pragma endregion
-
-
-
-
-};
-
-
-}}
-
-
-//==========================method定義================
-
-
-namespace wing{
-namespace sprite{
-
 template<typename DrawEngine>
 inline Sprite<DrawEngine>::Sprite(int width, int height, typename DrawEngine::ImageType img, int x=0 , int y=0 , int hit_check_rate=100, bool trance_flag=false):
 	  PosX(x),
@@ -137,7 +224,8 @@ inline Sprite<DrawEngine>::Sprite(int width, int height, typename DrawEngine::Im
 	  Height(height),
 	  TranceFlag(trance_flag),
 	  image(img),
-	  HitCheckRate(hit_check_rate)
+	  HitCheckRate(hit_check_rate),
+	  DeathFlag(false)
 	  {
 		//なぜかVS2010では初期化子リストでできないのでこうしている
 		DefinedEventListener = std::unordered_map<const char*,std::function<void()>,std::hash<const char*>,std::function<bool(const char*, const char*)> >
@@ -156,13 +244,18 @@ template<typename DrawEngine>
 inline void Sprite<DrawEngine>::setLocation(int x,int y){PosX=x;PosY=y;}
 
 template<typename DrawEngine>
+inline void Sprite<DrawEngine>::kill(){DeathFlag=true;}
+
+template<typename DrawEngine>
 inline void Sprite<DrawEngine>::move(int dx,int dy){PosX+=dx;PosY+=dy;}
 
 template<typename DrawEngine>
 inline void Sprite<DrawEngine>::addEventListener(const char* EventName, std::function<void()> EventListener){DefinedEventListener[EventName]=EventListener;}
 
 template<typename DrawEngine>
-inline void Sprite<DrawEngine>::chatchEvent(const char* EventName){DefinedEventListener.at(EventName)();}
+inline void Sprite<DrawEngine>::chatchEvent(const char* EventName){
+	if (DefinedEventListener.count(EventName)!=0) DefinedEventListener.at(EventName)();
+}
 
 template<typename DrawEngine>
 inline	int Sprite<DrawEngine>::getX() const {return PosX;}
