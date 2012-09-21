@@ -89,6 +89,12 @@ public:
 			setLocation(30,40);
 		});
 
+		addEventListener("move", [this](){
+			this->move(10,10);
+			this->removeEventListener("move");
+
+		});
+
 	}
 private:
 	int sx;
@@ -115,7 +121,30 @@ TEST( Sprite_Test, EventCatchTest ){
 	ASSERT_EQ(Hoge.getX(),30);
 	ASSERT_EQ(Hoge.getY(),40);
 
+	Hoge.chatchEvent("None");
+
 }
+
+TEST( Sprite_Test, EventRemoveTest ){
+
+	wing::DefaltLoader Loader;
+	auto img = Loader.load();
+
+	TestSprite Hoge(100,100,img);
+	
+	Hoge.chatchEvent("move");
+	ASSERT_EQ(Hoge.getX(),10);
+	ASSERT_EQ(Hoge.getY(),10);
+
+	
+	Hoge.chatchEvent("move");
+	ASSERT_EQ(Hoge.getX(),10);
+	ASSERT_EQ(Hoge.getY(),10);
+
+
+}
+
+
 
 TEST( Sprite_Test, getRadiusSquareTest ){
 
@@ -168,6 +197,10 @@ TEST( Hit_Check_Test, RectHitChangeRate ){
 	TestSprite Hoge(100,100,img,0,0,80);
 	TestSprite Foo(100,100,img,70,70,100);
 
+	ASSERT_EQ(wing::sprite::checkRectHit(Hoge, Hoge) , false);
+
+
+
 	ASSERT_EQ(wing::sprite::checkRectHit(Hoge, Foo) , true);
 	ASSERT_EQ(wing::sprite::checkRectHit(Foo, Hoge) , true);
 
@@ -202,6 +235,7 @@ TEST( Hit_Check_Test, CircleHit ){
 	{
 		TestSprite Hoge(60,60,img,-10,20);
 		TestSprite Foo(80,80,img,80,-10);
+		ASSERT_EQ(wing::sprite::checkRectHit(Hoge, Hoge) , false);
 
 		ASSERT_EQ(wing::sprite::checkCircleHit(Hoge, Foo) , false);
 	}
@@ -219,5 +253,12 @@ TEST( Hit_Check_Test, CircleHit ){
 
 		ASSERT_EQ(wing::sprite::checkCircleHit(Hoge, Foo) , false);
 	}
+
+}
+
+TEST( Canvas_Test, Init ){
+	wing::sprite::Canvas<wing::DefaltDrawEngine> Hoge(640,480);
+
+	Hoge.update();
 
 }
