@@ -1,5 +1,6 @@
 #include "../gtest/gtest.h"
 #include "../wing/sprite/sprite.hpp"
+#include "../wing/canvas/canvas.hpp"
 #include <iostream>
 #include <math.h>
 #pragma warning( disable : 4512 )
@@ -90,13 +91,15 @@ private:
 };
 
 
-class RootCanvas : public wing::sprite::Canvas<wing::DefaltDrawEngine>{
+class RootCanvas : public wing::canvas::Canvas<wing::DefaltDrawEngine>{
 public:
 RootCanvas():
-	wing::sprite::Canvas<wing::DefaltDrawEngine>(640,480,0,0){}
+	  wing::canvas::Canvas<wing::DefaltDrawEngine>(wing::RectSize(640, 480), wing::Position(0, 0)){}
 
-	void update(ThisType&){}
-
+	  void focusOn(){}
+	  void callFocusOn(ThisType&){}
+	  void update(ThisType&){}
+	  void focusOff(){}
 
 
 
@@ -104,20 +107,29 @@ RootCanvas():
 
 
 
-class TestCanvas : public wing::sprite::Canvas<wing::DefaltDrawEngine>{
+class TestCanvas : public wing::canvas::Canvas<wing::DefaltDrawEngine>{
 public:
-TestCanvas(int& test1):
-	wing::sprite::Canvas<wing::DefaltDrawEngine>(640,480,0,0),
-	Test1(test1)
+TestCanvas(int& test1,int& test2):
+	wing::canvas::Canvas<wing::DefaltDrawEngine>(wing::RectSize(640, 480),wing::Position(0, 0)),
+	Test1(test1),
+	Test2(test2)
 	{}
+
+void focusOn(){}
+void callFocusOn(ThisType&){
+	Test2=5;
+}
 
 void update(ThisType&){
 		 Test1=3;
 	  }
 
+void focusOff(){}
+
 
 private:
 	int& Test1;
+	int& Test2;
 
 
 };
@@ -254,8 +266,9 @@ TEST( Hit_Check_Test, CircleHit ){
 TEST( Canvas_Test, Init ){
 
 	auto a = 0;
+	auto b =0;
 
-	TestCanvas Hoge(a);
+	TestCanvas Hoge(a,b);
 	
 	ASSERT_EQ(Hoge.getPosX() , 0);
 	ASSERT_EQ(Hoge.getPosY() , 0);
@@ -268,12 +281,13 @@ TEST( Canvas_Test, Init ){
 TEST( Canvas_Test, Update ){
 
 	auto a = 0;
+	auto b =0;
 
 	RootCanvas Root;
 
-	auto Hoge = std::shared_ptr<TestCanvas>(new TestCanvas(a));
+	auto Hoge = std::shared_ptr<TestCanvas>(new TestCanvas(a,b));
 
-	Root.addChild(Hoge);
+	Root.addChild("hoge",Hoge);
 
 	ASSERT_EQ(a, 0);
 	Root.refresh();
@@ -282,6 +296,36 @@ TEST( Canvas_Test, Update ){
 	
 	
 }
+
+TEST( Canvas_Test, ChangeFocus ){
+
+	auto a = 0;
+	auto b = 0;
+	auto c = 0;
+	auto d = 0;
+
+	RootCanvas Root;
+
+	auto Hoge = std::shared_ptr<TestCanvas>(new TestCanvas(a,b));
+	auto Foo = std::shared_ptr<TestCanvas>(new TestCanvas(c,d));
+
+
+	Root.addChild("hoge",Hoge);
+	Root.addChild("foo",Foo);
+
+	ASSERT_EQ(a, 0);
+	Root.refresh();
+	ASSERT_EQ(a, 3);
+	Root.changeFocus("hoge");
+	Root.refresh();
+	ASSERT_EQ(b, 5);
+	
+	
+	
+}
+
+
+
 
 TEST( Sprite_Test, SpeedTest ){
 	wing::DefaltLoader Loader;
