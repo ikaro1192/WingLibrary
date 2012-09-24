@@ -1,14 +1,18 @@
 #include "../gtest/gtest.h"
-#include "../wing/seen_transition/seen_transition.hpp"
+#include "../wing/scene_transition/scene_transition.hpp"
 #include <iostream>
 #pragma warning( disable : 4512 )
 
 
-class SeenTransitionTestClass1{
+class MyEvent{
+public:
+};
+
+class SceneTransitionTestClass1{
 public:
 	typedef int Parameter;
 
-	SeenTransitionTestClass1(bool& FocusOnFlag_,int& FocusOnParameter_,bool& CallFlag_,char& EventParameter_):
+	SceneTransitionTestClass1(bool& FocusOnFlag_,int& FocusOnParameter_,bool& CallFlag_,char& EventParameter_):
 		FocusOnFlag(FocusOnFlag_),
 		FocusOnParameter(FocusOnParameter_),
 		CallFlag(CallFlag_),
@@ -16,17 +20,22 @@ public:
 	{}
 
 	template<class T>
-	void run(T& Manager){
+	void update(T& Manager){
 		CallFlag=true;
 	}
 
-	UNDEFINED_EVENT_CHATCHER;
+	UNDEFINED_EVENT_LISTENER;
 
 	template<>
-	void catchEvent<char>(){EventParameter=1;}
+	void listenEvent<char>(){EventParameter=1;}
 
 	template<>
-	void catchEvent<char>(char e){
+	void listenEvent<MyEvent>(const MyEvent& e){
+		//EventParameter=e;
+	}
+
+	template<>
+	void listenEvent<char>(char e){
 		EventParameter=e;
 	}
 
@@ -46,10 +55,10 @@ private:
 	char& EventParameter;
 };
 
-class SeenTransitionTestClass2{
+class SceneTransitionTestClass2{
 public:
 	typedef int Parameter;
-	SeenTransitionTestClass2(bool& FocusOnFlag_,int& FocusOnParameter_,bool& CallFlag_,int& EventParameter_):
+	SceneTransitionTestClass2(bool& FocusOnFlag_,int& FocusOnParameter_,bool& CallFlag_,int& EventParameter_):
 		FocusOnFlag(FocusOnFlag_),
 		FocusOnParameter(FocusOnParameter_),
 		CallFlag(CallFlag_),
@@ -57,17 +66,17 @@ public:
 		{}
 
 	template<class T>
-	void run(T& Manager){
+	void update(T& Manager){
 		CallFlag=true;
 	}
 
-	UNDEFINED_EVENT_CHATCHER;
+	UNDEFINED_EVENT_LISTENER;
 
 	template<>
-	void catchEvent<int>(){EventParameter=-1;}
+	void listenEvent<int>(){EventParameter=-1;}
 
 	template<>
-	void catchEvent<int>(int e){EventParameter=e;}
+	void listenEvent<int>(int e){EventParameter=e;}
 
 
 
@@ -89,11 +98,11 @@ private:
 };
 
 
-typedef wing::seen_transition::SeenManager<wing::seen_transition::SeenList<SeenTransitionTestClass1,SeenTransitionTestClass2> > MyManager;
+typedef wing::scene_transition::SceneGroup<wing::scene_transition::SceneList<SceneTransitionTestClass1,SceneTransitionTestClass2> > MyManager;
 	
 
 //初期化テスト
-TEST( Seen_Transition_Test, InitializeTest ){
+TEST( Scene_Transition_Test, InitializeTest ){
 
 	auto FocusOnFlag1=false;
 	auto FocusOnFlag2=false;
@@ -103,9 +112,9 @@ TEST( Seen_Transition_Test, InitializeTest ){
 	auto CallFlag2=false;
 	char EventParameter=0;
 	int EventParameter1=0;
-	auto Manager=MyManager(SeenTransitionTestClass1(FocusOnFlag1,FocusOnParameter1,CallFlag1,EventParameter),SeenTransitionTestClass2(FocusOnFlag2,FocusOnParameter2,CallFlag2,EventParameter1));
+	auto Manager=MyManager(SceneTransitionTestClass1(FocusOnFlag1,FocusOnParameter1,CallFlag1,EventParameter),SceneTransitionTestClass2(FocusOnFlag2,FocusOnParameter2,CallFlag2,EventParameter1));
 		
-	
+
 	EXPECT_EQ(0,Manager.getNowTarget()); 
 
 	Manager.throwEvent<int>();
@@ -113,7 +122,7 @@ TEST( Seen_Transition_Test, InitializeTest ){
 }
 
 //パラメータなしのフォーカス変更テスト
-TEST( Seen_Transition_Test, ChangeFocusTestNonParameter ){
+TEST( Scene_Transition_Test, ChangeFocusTestNonParameter ){
  
 	auto FocusOnFlag1=false;
 	auto FocusOnFlag2=false;
@@ -123,23 +132,22 @@ TEST( Seen_Transition_Test, ChangeFocusTestNonParameter ){
 	auto CallFlag2=false;
 	char EventParameter=0;
 	int EventParameter1=0;
-	auto Manager=MyManager(SeenTransitionTestClass1(FocusOnFlag1,FocusOnParameter1,CallFlag1,EventParameter),SeenTransitionTestClass2(FocusOnFlag2,FocusOnParameter2,CallFlag2,EventParameter1));
+	auto Manager=MyManager(SceneTransitionTestClass1(FocusOnFlag1,FocusOnParameter1,CallFlag1,EventParameter),SceneTransitionTestClass2(FocusOnFlag2,FocusOnParameter2,CallFlag2,EventParameter1));
 		
-	
 
-	Manager.changeFocus<SeenTransitionTestClass1>();
+	Manager.changeFocus<SceneTransitionTestClass1>();
 	EXPECT_EQ(0,Manager.getNowTarget()); 
 	EXPECT_EQ(true,FocusOnFlag1); 
 	EXPECT_EQ(false,FocusOnFlag2); 
 
 
-	Manager.changeFocus<SeenTransitionTestClass2>();
+	Manager.changeFocus<SceneTransitionTestClass2>();
 	EXPECT_EQ(1,Manager.getNowTarget()); 
 	EXPECT_EQ(false,FocusOnFlag1); 
 	EXPECT_EQ(true,FocusOnFlag2); 
 
 
-	Manager.changeFocus<SeenTransitionTestClass1>();
+	Manager.changeFocus<SceneTransitionTestClass1>();
 	EXPECT_EQ(0,Manager.getNowTarget()); 
 	EXPECT_EQ(true,FocusOnFlag1); 
 	EXPECT_EQ(false,FocusOnFlag2); 
@@ -149,7 +157,7 @@ TEST( Seen_Transition_Test, ChangeFocusTestNonParameter ){
 }
 
 //パラメータありのフォーカス変更テスト
-TEST( Seen_Transition_Test, ChangeFocusTestParameter ){
+TEST( Scene_Transition_Test, ChangeFocusTestParameter ){
  
 	auto FocusOnFlag1=false;
 	auto FocusOnFlag2=false;
@@ -159,26 +167,26 @@ TEST( Seen_Transition_Test, ChangeFocusTestParameter ){
 	auto CallFlag2=false;
 	char EventParameter=0;
 	int EventParameter1=0;
-	auto Manager=MyManager(SeenTransitionTestClass1(FocusOnFlag1,FocusOnParameter1,CallFlag1,EventParameter),SeenTransitionTestClass2(FocusOnFlag2,FocusOnParameter2,CallFlag2,EventParameter1));
+	auto Manager=MyManager(SceneTransitionTestClass1(FocusOnFlag1,FocusOnParameter1,CallFlag1,EventParameter),SceneTransitionTestClass2(FocusOnFlag2,FocusOnParameter2,CallFlag2,EventParameter1));
 		
 	
 
 
-	Manager.changeFocus<SeenTransitionTestClass1>(10);
+	Manager.changeFocus<SceneTransitionTestClass1>(10);
 	EXPECT_EQ(0,Manager.getNowTarget()); 
 	EXPECT_EQ(true,FocusOnFlag1); 
 	EXPECT_EQ(false,FocusOnFlag2); 
 	EXPECT_EQ(10,FocusOnParameter1); 
 
 	
-	Manager.changeFocus<SeenTransitionTestClass2>(4);
+	Manager.changeFocus<SceneTransitionTestClass2>(4);
 	EXPECT_EQ(1,Manager.getNowTarget()); 
 	EXPECT_EQ(false,FocusOnFlag1); 
 	EXPECT_EQ(true,FocusOnFlag2); 
 	EXPECT_EQ(4,FocusOnParameter2);
 
 	
-	Manager.changeFocus<SeenTransitionTestClass1>(2);
+	Manager.changeFocus<SceneTransitionTestClass1>(2);
 	EXPECT_EQ(0,Manager.getNowTarget()); 
 	EXPECT_EQ(true,FocusOnFlag1); 
 	EXPECT_EQ(false,FocusOnFlag2); 
@@ -189,7 +197,7 @@ TEST( Seen_Transition_Test, ChangeFocusTestParameter ){
 
 
 //Runのテスト
-TEST( Seen_Transition_Test, RunTest ){
+TEST( Scene_Transition_Test, RunTest ){
 
 	auto FocusOnFlag1=false;
 	auto FocusOnFlag2=false;
@@ -199,24 +207,24 @@ TEST( Seen_Transition_Test, RunTest ){
 	auto CallFlag2=false;
 	char EventParameter=0;
 	int EventParameter1=0;
-	auto Manager=MyManager(SeenTransitionTestClass1(FocusOnFlag1,FocusOnParameter1,CallFlag1,EventParameter),SeenTransitionTestClass2(FocusOnFlag2,FocusOnParameter2,CallFlag2,EventParameter1));
+	auto Manager=MyManager(SceneTransitionTestClass1(FocusOnFlag1,FocusOnParameter1,CallFlag1,EventParameter),SceneTransitionTestClass2(FocusOnFlag2,FocusOnParameter2,CallFlag2,EventParameter1));
 		
 	
 	
-	Manager.run();
+	Manager.refresh();
 
 
 	EXPECT_EQ(true,CallFlag1);
 	EXPECT_EQ(false,CallFlag2); 
 
-	Manager.changeFocus<SeenTransitionTestClass2>();
-	Manager.run();
+	Manager.changeFocus<SceneTransitionTestClass2>();
+	Manager.refresh();
 	EXPECT_EQ(false,CallFlag1);
 	EXPECT_EQ(true,CallFlag2); 
 }
 
 //パラメータなしのイベントののテスト
-TEST( Seen_Transition_Test, ThrowEventNonParameterTest ){
+TEST( Scene_Transition_Test, ThrowEventNonParameterTest ){
 	auto FocusOnFlag1=false;
 	auto FocusOnFlag2=false;
 	auto FocusOnParameter1=0;
@@ -225,7 +233,7 @@ TEST( Seen_Transition_Test, ThrowEventNonParameterTest ){
 	auto CallFlag2=false;
 	char EventParameter=0;
 	int EventParameter1=0;
-	auto Manager=MyManager(SeenTransitionTestClass1(FocusOnFlag1,FocusOnParameter1,CallFlag1,EventParameter),SeenTransitionTestClass2(FocusOnFlag2,FocusOnParameter2,CallFlag2,EventParameter1));
+	auto Manager=MyManager(SceneTransitionTestClass1(FocusOnFlag1,FocusOnParameter1,CallFlag1,EventParameter),SceneTransitionTestClass2(FocusOnFlag2,FocusOnParameter2,CallFlag2,EventParameter1));
 		
 	
 	EXPECT_EQ(0,EventParameter);
@@ -243,7 +251,7 @@ TEST( Seen_Transition_Test, ThrowEventNonParameterTest ){
 }
 
 //パラメータありのイベントのテスト
-TEST( Seen_Transition_Test, ThrowEventParameterTest ){
+TEST( Scene_Transition_Test, ThrowEventParameterTest ){
 	auto FocusOnFlag1=false;
 	auto FocusOnFlag2=false;
 	auto FocusOnParameter1=0;
@@ -252,7 +260,7 @@ TEST( Seen_Transition_Test, ThrowEventParameterTest ){
 	auto CallFlag2=false;
 	char EventParameter=0;
 	int EventParameter1=0;
-	auto Manager=MyManager(SeenTransitionTestClass1(FocusOnFlag1,FocusOnParameter1,CallFlag1,EventParameter),SeenTransitionTestClass2(FocusOnFlag2,FocusOnParameter2,CallFlag2,EventParameter1));
+	auto Manager=MyManager(SceneTransitionTestClass1(FocusOnFlag1,FocusOnParameter1,CallFlag1,EventParameter),SceneTransitionTestClass2(FocusOnFlag2,FocusOnParameter2,CallFlag2,EventParameter1));
 		
 	EXPECT_EQ(0,EventParameter);
 	EXPECT_EQ(0,EventParameter1);
@@ -265,8 +273,8 @@ TEST( Seen_Transition_Test, ThrowEventParameterTest ){
 	Manager.throwEvent<int>(3);
 	EXPECT_EQ(4,EventParameter);
 	EXPECT_EQ(3,EventParameter1);
-	
 
+	Manager.throwEvent<MyEvent>(MyEvent());
 
 
 }

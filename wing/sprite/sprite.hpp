@@ -10,10 +10,11 @@
 
 #include<iostream>
 
-
+#include "../common.hpp"
 
 
 namespace wing{
+
 namespace sprite{
 
 
@@ -28,11 +29,7 @@ inline bool checkCircleHit(const A& obj1, const B& obj2);
 
 
 //===============================Sprite================================
-/*定義済みイベント
-Update
-OutCanvas
-Delete
-*/
+
 
 template<typename DrawEngine>
 class Sprite : public DrawEngine{
@@ -40,110 +37,111 @@ public:
 
 	typedef typename DrawEngine::ImageType ImageType;
 
-	Sprite(int width, int height,ImageType img, int x=0 , int y=0 , int hit_check_rate=100, bool trance_flag=false);
+	Sprite(int width, int height,ImageType img,wing::Position position , int hit_check_rate=100, bool trance_flag=false);
 
+	//アップデート関数(必要ならオーバーライドして使う)
+	virtual void update(){}
 	
-	void chatchEvent(const char* EventName);
 	int getX() const;
 	int getY() const;
 	int getHitCheckRate() const;
-	bool getDeathFlag() const{return DeathFlag;}
-	const ImageType& getImage() const{return image;}
+	bool isAlive() const;
+	const ImageType& getImage() const;
 	int getWidth() const;
 	int getHeight() const;
 	int getRadiusSquare() const;
-	
+
+	void kill();
+
+
 	virtual ~Sprite(){}
 
 protected:
 	//セッター系は継承先でのみ使える
-	void setHitCheckRate(int HitCheckRate);
+	void setHitCheckRate(int hit_check_rate);
 	void setLocation(int x,int y);
 	void move(int dx,int dy);
-	void addEventListener(const char* EventName, std::function<void()> EventListener);
-	void removeEventListener(const char* EventName){DefinedEventListener.erase(EventName);}
-	void kill();
+
+private:
+
+	
+	//コピー・代入の禁止
+	Sprite(const Sprite<DrawEngine>&);
+	Sprite& operator=(Sprite<DrawEngine>&);
+
 
 #pragma region PrivateMember
-private:
+
 	ImageType image;
 	int PosX;
 	int PosY;
 	int Width;
 	int Height;
 	bool TranceFlag;
-	bool DeathFlag;
+	bool AliveFlag;
 	int HitCheckRate;
-	std::unordered_map<
-		const char*,
-		std::function<void()>,
-		std::hash<const char*>,
-		std::function<bool(const char*, const char*)>
-	> DefinedEventListener;
+
 #pragma endregion
 
 };
 
+
 /*
 FocusOn
-NowFocus
-Update
+NowFocus(Canvas& )
+・Update(Canvas& )
 FocusOut
 Delete
 */
 template<typename DrawEngine>
 class Canvas{
 public:
-	Canvas(int width, int height):
-	Width(width),
-	Height(height)
-	{}
+
+	typedef Canvas<DrawEngine> ThisType;
+
+
+	Canvas(int width, int height,int pos_x, int pos_y);
+
 	int getPosX() const;
 	int getPosY() const;
 	int getWidth() const;
 	int getHeight() const;
 
-	void update(){
-
-
-		for(auto iter = ChildList.begin(); iter != ChildList.end(); ++iter){
-			(*iter)->update();
-		}
-
-
-		auto NewEndIter = std::remove_if(SpriteList.begin(),SpriteList.end(),
-			[](const std::shared_ptr<Sprite<DrawEngine> >& obj){return obj->getDeathFlag() == true;}
-		);
-
-		SpriteList.erase( NewEndIter, SpriteList.end() );
-
-		for(auto iter = SpriteList.begin(); iter != SpriteList.end(); ++iter){
-			(*iter)->chatchEvent("update");
-		}
-
-		//this->chatchEvent("update");
-
-	}
+	void refresh();
 	
-	void addSprite(const Sprite<DrawEngine>& sprite);
-	void addChild(const std::shared_ptr<Canvas>& child);
+	void addChild(const std::shared_ptr<Canvas<DrawEngine> >& child);
 
-	void chatchEvent(const char* EventName);
+	void listenEvent(const char* EventName);
+
+
+	virtual ~Canvas(){}
 
 
 protected:
+
+	void addSprite(const std::shared_ptr<Sprite<DrawEngine> >& sprite);
+
 	void addEventListener(const char* EventName, std::function<void()> EventListener);
 
+	void removeEventListener(const char* EventName);
 
-#pragma region PrivateMember
 private:
-	int PosX;
-	int PosY;
-	int Width;
-	int Height;
+	
+	//コピー・代入禁止
+	Canvas(const Canvas<DrawEngine>&);
+	Canvas& operator=(Canvas<DrawEngine>&);
+	
+	//オーバーライドして使う。
+	virtual void update(ThisType&) = 0;
+	
+#pragma region PrivateMember
 
+	const int PosX;
+	const int PosY;
+	const int Width;
+	const int Height;
 
-	std::vector<std::shared_ptr<Canvas> > ChildList;
+	std::vector<std::shared_ptr<Canvas<DrawEngine> > > ChildList;
 	std::vector<std::shared_ptr<Sprite<DrawEngine> > > SpriteList;
 
 	std::unordered_map<
@@ -163,7 +161,7 @@ private:
 }}
 
 
-//==========================method定義================
+//==========================実装===========================
 
 
 namespace wing{
@@ -209,53 +207,55 @@ inline bool checkCircleHit(const A& obj1, const B& obj2){
 	auto Y1 =  obj1.getY() + obj1.getHeight()/2;
 	auto Y2 =  obj2.getY() + obj2.getHeight()/2;
 
+	auto R1 = (obj1.getRadiusSquare()* obj1.getHitCheckRate()) / 100;
+	auto R2 = (obj1.getRadiusSquare()* obj2.getHitCheckRate()) / 100;
 
-	return (X1 - X2) * (X1 - X2) + (Y1 - Y2) * (Y1 - Y2) <= (obj1.getRadiusSquare() + obj2.getRadiusSquare()) * (obj1.getRadiusSquare() + obj2.getRadiusSquare());
+
+	return (X1 - X2) * (X1 - X2) + (Y1 - Y2) * (Y1 - Y2) <= (R1 + R2) * (R1 + R2);
 
 }
 
+//==========================Sprite================
 
 
 template<typename DrawEngine>
-inline Sprite<DrawEngine>::Sprite(int width, int height, typename DrawEngine::ImageType img, int x=0 , int y=0 , int hit_check_rate=100, bool trance_flag=false):
-	  PosX(x),
-	  PosY(y),
+inline Sprite<DrawEngine>::Sprite(int width, int height, typename DrawEngine::ImageType img, wing::Position position, int hit_check_rate=100, bool trance_flag=false):
+	  PosX(position.getX()),
+	  PosY(position.getY()),
 	  Width(width),
 	  Height(height),
 	  TranceFlag(trance_flag),
 	  image(img),
 	  HitCheckRate(hit_check_rate),
-	  DeathFlag(false)
-	  {
-		//なぜかVS2010では初期化子リストでできないのでこうしている
-		DefinedEventListener = std::unordered_map<const char*,std::function<void()>,std::hash<const char*>,std::function<bool(const char*, const char*)> >
-		  (10,std::hash<const char*>(),
-		  [](const char* lhs,const char* rhs){return (strcmp(lhs, rhs) == 0)? true : false;});
-	  }
+	  AliveFlag(true)
+	  {}
 
 
 
 
 template<typename DrawEngine>
-inline void Sprite<DrawEngine>::setHitCheckRate(int HitCheckRate){this->HitCheckRate = HitCheckRate;}
+inline void Sprite<DrawEngine>::setHitCheckRate(int hit_check_rate){
+	HitCheckRate = hit_check_rate;
+}
 
 	
 template<typename DrawEngine>
-inline void Sprite<DrawEngine>::setLocation(int x,int y){PosX=x;PosY=y;}
-
-template<typename DrawEngine>
-inline void Sprite<DrawEngine>::kill(){DeathFlag=true;}
-
-template<typename DrawEngine>
-inline void Sprite<DrawEngine>::move(int dx,int dy){PosX+=dx;PosY+=dy;}
-
-template<typename DrawEngine>
-inline void Sprite<DrawEngine>::addEventListener(const char* EventName, std::function<void()> EventListener){DefinedEventListener[EventName]=EventListener;}
-
-template<typename DrawEngine>
-inline void Sprite<DrawEngine>::chatchEvent(const char* EventName){
-	if (DefinedEventListener.count(EventName)!=0) DefinedEventListener.at(EventName)();
+inline void Sprite<DrawEngine>::setLocation(int x,int y){
+	PosX=x;
+	PosY=y;
 }
+
+template<typename DrawEngine>
+inline void Sprite<DrawEngine>::kill(){
+	AliveFlag=false;
+}
+
+template<typename DrawEngine>
+inline void Sprite<DrawEngine>::move(int dx,int dy){
+	PosX+=dx;
+	PosY+=dy;
+}
+
 
 template<typename DrawEngine>
 inline	int Sprite<DrawEngine>::getX() const {return PosX;}
@@ -277,5 +277,97 @@ inline	int Sprite<DrawEngine>::getHitCheckRate() const{return HitCheckRate;}
 
 template<typename DrawEngine>
 inline	int Sprite<DrawEngine>::getRadiusSquare() const {return Width > Height ? Height/2 : Width/2;}
+
+template<typename DrawEngine>
+bool Sprite<DrawEngine>::isAlive() const{return AliveFlag;}
+
+template<typename DrawEngine>
+const typename Sprite<DrawEngine>::ImageType& Sprite<DrawEngine>::getImage() const{return image;}
+
+
+//==========================Canvas================
+template<typename DrawEngine>
+Canvas<DrawEngine>::Canvas(int width, int height,int pos_x, int pos_y):
+	Width(width),
+	Height(height),
+	PosX(pos_x),
+	PosY(pos_y)
+{
+	DefinedEventListener = std::unordered_map<const char*,std::function<void()>,std::hash<const char*>,std::function<bool(const char*, const char*)> >
+	  (10,std::hash<const char*>(),
+	  [](const char* lhs,const char* rhs){return (strcmp(lhs, rhs) == 0)? true : false;});
+}
+
+
+template<typename DrawEngine>
+inline int Canvas<DrawEngine>::getPosX() const{
+	return PosX;
+}
+
+template<typename DrawEngine>
+inline int Canvas<DrawEngine>::getPosY() const{
+	return PosY;
+}
+
+template<typename DrawEngine>
+inline int Canvas<DrawEngine>::getWidth() const{
+	return Width;
+}
+
+template<typename DrawEngine>
+inline int Canvas<DrawEngine>::getHeight() const{
+	return Height;
+}
+
+
+template<typename DrawEngine>
+inline void Canvas<DrawEngine>::addSprite(const std::shared_ptr<Sprite<DrawEngine> >& sprite){
+	SpriteList.push_back(sprite);
+}
+
+template<typename DrawEngine>
+inline void Canvas<DrawEngine>::addChild(const std::shared_ptr<Canvas>& child){
+	ChildList.push_back(child);
+}
+
+template<typename DrawEngine>
+inline void Canvas<DrawEngine>::addEventListener(const char* EventName, std::function<void()> EventListener){
+	DefinedEventListener[EventName]=EventListener;
+}
+
+template<typename DrawEngine>
+inline void Canvas<DrawEngine>::removeEventListener(const char* EventName){
+	DefinedEventListener.erase(EventName);
+}
+
+
+
+template<typename DrawEngine>
+inline void Canvas<DrawEngine>::listenEvent(const char* EventName){
+	if (DefinedEventListener.count(EventName)!=0) DefinedEventListener.at(EventName)();
+}
+
+template<typename DrawEngine>
+void Canvas<DrawEngine>::refresh(){
+
+	//子どもをrefreshする
+	for(auto iter = ChildList.begin(); iter != ChildList.end(); ++iter){
+		(*iter)->refresh();
+		(*iter)-> update(*this);
+	}
+
+	//死んだスプライトの開放
+	auto NewEndIter = std::remove_if(SpriteList.begin(),SpriteList.end(),
+		[](const std::shared_ptr<Sprite<DrawEngine> >& obj){return obj->isAlive () == false;}
+	);
+	SpriteList.erase( NewEndIter, SpriteList.end() );
+
+	//Spriteをupdate
+	for(auto iter = SpriteList.begin(); iter != SpriteList.end(); ++iter){
+		(*iter)->update();
+	}
+
+
+}
 
 }}

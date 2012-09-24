@@ -77,69 +77,64 @@ public:
 
 class TestSprite : public wing::sprite::Sprite<wing::DefaltDrawEngine>{
 public:
-	TestSprite(int width, int height,ImageType img, int x=0 , int y=0 , int hit_check_rate=100, bool trance_flag=false):
-		wing::sprite::Sprite<wing::DefaltDrawEngine>(width, height, img, x, y, hit_check_rate, trance_flag)
+	TestSprite(int width, int height,ImageType img,wing::Position position =wing::Position(0,0) , int hit_check_rate=100, bool trance_flag=false):
+		wing::sprite::Sprite<wing::DefaltDrawEngine>(width, height, img, position, hit_check_rate, trance_flag)
 	{
 
-		sx=10;
-		addEventListener("hoge", [this](){
-			setLocation(this->sx,20);
-		});
-		addEventListener("bar", [this](){
-			setLocation(30,40);
-		});
 
-		addEventListener("move", [this](){
-			this->move(10,10);
-			this->removeEventListener("move");
-
-		});
 
 	}
 private:
-	int sx;
 
 
 };
 
 
-TEST( Sprite_Test, EventCatchTest ){
+class RootCanvas : public wing::sprite::Canvas<wing::DefaltDrawEngine>{
+public:
+RootCanvas():
+	wing::sprite::Canvas<wing::DefaltDrawEngine>(640,480,0,0){}
 
+	void update(ThisType&){}
+
+
+
+
+};
+
+
+
+class TestCanvas : public wing::sprite::Canvas<wing::DefaltDrawEngine>{
+public:
+TestCanvas(int& test1):
+	wing::sprite::Canvas<wing::DefaltDrawEngine>(640,480,0,0),
+	Test1(test1)
+	{}
+
+void update(ThisType&){
+		 Test1=3;
+	  }
+
+
+private:
+	int& Test1;
+
+
+};
+
+
+
+TEST( Sprite_Test, KillTest ){
 	wing::DefaltLoader Loader;
 	auto img = Loader.load();
 
 	TestSprite Hoge(100,100,img);
-	
-	ASSERT_EQ(Hoge.getX(),0);
-	ASSERT_EQ(Hoge.getY(),0);
-	
-	Hoge.chatchEvent("hoge");
-	ASSERT_EQ(Hoge.getX(),10);
-	ASSERT_EQ(Hoge.getY(),20);
 
-	Hoge.chatchEvent("bar");
-	ASSERT_EQ(Hoge.getX(),30);
-	ASSERT_EQ(Hoge.getY(),40);
+	ASSERT_EQ(Hoge.isAlive(), true );
 
-	Hoge.chatchEvent("None");
+	Hoge.kill();
 
-}
-
-TEST( Sprite_Test, EventRemoveTest ){
-
-	wing::DefaltLoader Loader;
-	auto img = Loader.load();
-
-	TestSprite Hoge(100,100,img);
-	
-	Hoge.chatchEvent("move");
-	ASSERT_EQ(Hoge.getX(),10);
-	ASSERT_EQ(Hoge.getY(),10);
-
-	
-	Hoge.chatchEvent("move");
-	ASSERT_EQ(Hoge.getX(),10);
-	ASSERT_EQ(Hoge.getY(),10);
+	ASSERT_EQ(Hoge.isAlive(), false );
 
 
 }
@@ -174,17 +169,17 @@ TEST( Hit_Check_Test, RectHit ){
 	ASSERT_EQ(wing::sprite::checkRectHit(Foo,Hoge) , true);
 
 
-	TestSprite Foo2(50,80,img,80,80);
+	TestSprite Foo2(50,80,img,wing::Position(80,80) );
 	ASSERT_EQ(wing::sprite::checkRectHit(Hoge,Foo2) , true);
 	ASSERT_EQ(wing::sprite::checkRectHit(Foo2,Hoge) , true);
 
 	
-	TestSprite Foo3(50,80,img,100,80);
+	TestSprite Foo3(50,80,img,wing::Position(100,80));
 	ASSERT_EQ(wing::sprite::checkRectHit(Hoge,Foo3) , false);
 	ASSERT_EQ(wing::sprite::checkRectHit(Foo3,Hoge) , false);
 
 
-	TestSprite Foo4(50,80,img,80,120);
+	TestSprite Foo4(50,80,img,wing::Position(80,120));
 	ASSERT_EQ(wing::sprite::checkRectHit(Hoge,Foo3) , false);
 	ASSERT_EQ(wing::sprite::checkRectHit(Foo3,Hoge) , false);
 
@@ -194,8 +189,8 @@ TEST( Hit_Check_Test, RectHitChangeRate ){
 	wing::DefaltLoader Loader;
 	auto img = Loader.load();
 
-	TestSprite Hoge(100,100,img,0,0,80);
-	TestSprite Foo(100,100,img,70,70,100);
+	TestSprite Hoge(100,100, img, wing::Position(0, 0), 80);
+	TestSprite Foo(100,100, img, wing::Position(70, 70), 100);
 
 	ASSERT_EQ(wing::sprite::checkRectHit(Hoge, Hoge) , false);
 
@@ -204,12 +199,12 @@ TEST( Hit_Check_Test, RectHitChangeRate ){
 	ASSERT_EQ(wing::sprite::checkRectHit(Hoge, Foo) , true);
 	ASSERT_EQ(wing::sprite::checkRectHit(Foo, Hoge) , true);
 
-	TestSprite Foo1(100,100,img,90,70,100);
+	TestSprite Foo1(100,100,img, wing::Position(90,70), 100);
 
 	ASSERT_EQ(wing::sprite::checkRectHit(Hoge, Foo1) , false);
 	ASSERT_EQ(wing::sprite::checkRectHit(Foo1, Hoge) , false);
 
-	TestSprite Foo2(100,100,img,70,90,100);
+	TestSprite Foo2(100,100,img, wing::Position(70,90), 100);
 
 	ASSERT_EQ(wing::sprite::checkRectHit(Hoge, Foo2) , false);
 	ASSERT_EQ(wing::sprite::checkRectHit(Foo2, Hoge) , false);
@@ -219,7 +214,7 @@ TEST( Hit_Check_Test, RectHitChangeRate ){
 	ASSERT_EQ(wing::sprite::checkRectHit(Hoge, Foo3) , false);
 	ASSERT_EQ(wing::sprite::checkRectHit(Foo3, Hoge) , false);
 
-	TestSprite Foo4(5, 5, img, 10,10);
+	TestSprite Foo4(5, 5, img, wing::Position(10,10));
 
 	ASSERT_EQ(wing::sprite::checkRectHit(Hoge, Foo4) , true);
 	ASSERT_EQ(wing::sprite::checkRectHit(Foo4, Hoge) , true);
@@ -233,23 +228,23 @@ TEST( Hit_Check_Test, CircleHit ){
 	auto img = Loader.load();
 
 	{
-		TestSprite Hoge(60,60,img,-10,20);
-		TestSprite Foo(80,80,img,80,-10);
+		TestSprite Hoge(60,60,img,wing::Position(-10,20));
+		TestSprite Foo(80,80,img,wing::Position(80,-10));
 		ASSERT_EQ(wing::sprite::checkRectHit(Hoge, Hoge) , false);
 
 		ASSERT_EQ(wing::sprite::checkCircleHit(Hoge, Foo) , false);
 	}
 
 	{
-		TestSprite Hoge(60,60,img,-0,0);
-		TestSprite Foo(80,80,img,20,0);
+		TestSprite Hoge(60,60,img,wing::Position(-0,0));
+		TestSprite Foo(80,80,img,wing::Position(20,0));
 
 		ASSERT_EQ(wing::sprite::checkCircleHit(Hoge, Foo) , true);
 	}
 
 	{
-		TestSprite Hoge(60,60,img,0,0);
-		TestSprite Foo(80,80,img,70,0);
+		TestSprite Hoge(60,60,img,wing::Position(0,0));
+		TestSprite Foo(80,80,img,wing::Position(70,0));
 
 		ASSERT_EQ(wing::sprite::checkCircleHit(Hoge, Foo) , false);
 	}
@@ -257,8 +252,43 @@ TEST( Hit_Check_Test, CircleHit ){
 }
 
 TEST( Canvas_Test, Init ){
-	wing::sprite::Canvas<wing::DefaltDrawEngine> Hoge(640,480);
 
-	Hoge.update();
+	auto a = 0;
+
+	TestCanvas Hoge(a);
+	
+	ASSERT_EQ(Hoge.getPosX() , 0);
+	ASSERT_EQ(Hoge.getPosY() , 0);
+	ASSERT_EQ(Hoge.getWidth() , 640);
+	ASSERT_EQ(Hoge.getHeight() , 480);
+
+}
+
+
+TEST( Canvas_Test, Update ){
+
+	auto a = 0;
+
+	RootCanvas Root;
+
+	auto Hoge = std::shared_ptr<TestCanvas>(new TestCanvas(a));
+
+	Root.addChild(Hoge);
+
+	ASSERT_EQ(a, 0);
+	Root.refresh();
+
+	ASSERT_EQ(a, 3);
+	
+	
+}
+
+TEST( Sprite_Test, SpeedTest ){
+	wing::DefaltLoader Loader;
+	auto img = Loader.load();
+
+	for(int i=0;i<10000;++i){
+	auto Hoge = std::shared_ptr<TestSprite>( new TestSprite(100,100,img,wing::Position(0,0),80));
+	}
 
 }

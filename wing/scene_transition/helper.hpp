@@ -10,8 +10,8 @@
 
 #include "../common.hpp"
 
-#define UNDEFINED_EVENT_CHATCHER template<class Event> void catchEvent(){}\
-	template<class Event> void catchEvent(typename wing::scene_transition::checkCallType<Event>::Result e){}
+#define UNDEFINED_EVENT_LISTENER template<class Event> void listenEvent(){}\
+	template<class Event> void listenEvent(typename wing::scene_transition::checkCallType<Event>::Result e){}
 
 #define CALL_BY_CONST_REFERENCE struct ConstReference{}
 #define CALL_BY_REFERENCE struct Reference{}
@@ -100,14 +100,14 @@ public:
 };
 
 //==============================CheckHasFocusOut==================================
-//focusOutがあるかしらべ、ない場合はデフォルトのfocusOutを呼ぶ
+//focusOutがあるかしらべ、ない場合はエラーをはく
 class CheckHasFocusOut{
 private:
 
 	class NotHasFocusOut{
 	public:
 		template<class T>
-		static void focusOut(T&){}
+		static void focusOut(T&){static_assert(false,"Not Found focusOut in your scene class.");}
 	};
 
 	class HasFocusOut{
@@ -152,7 +152,7 @@ public:
 };
 
 //==============================CheckHasRun==================================
-//run(T& Manager, U& SuperManager)もしくはrun(Manager)があるか調べる。
+//update(T& Manager, U& SuperManager)もしくはupdate(Manager)があるか調べる。
 //ない場合はエラー
 class CheckHasRun{
 private:
@@ -160,27 +160,27 @@ private:
 	class NotHasRun{
 	public:
 		template<class S, class T, class U>
-		static void run(S& obj, T& Manager,U&){static_assert(false,"This Class must have run(Manager) or run(Manager,SuperManager).");}
+		static void update(S& obj, T& Manager,U&){static_assert(false,"This Class must have update(Manager) or update(Manager,SuperManager).");}
 	};
 
 
 	class HasOneParameterRun{
 	public:
 		template<class S, class T, class U>
-		static void run(S& obj, T& Manager,U&){obj.run(Manager);}
+		static void update(S& obj, T& Manager,U&) {obj.update(Manager);}
 	};
 
 	class HasTwoParameterRun{
 	public:
 		template<class S, class T, class U>
-		static void run(S& obj, T& Manager, U& SuperManager){obj.run(Manager,SuperManager);}
+		static void update(S& obj, T& Manager, U& SuperManager){obj.update(Manager,SuperManager);}
 	};
 
 	template<typename T>
-	static HasTwoParameterRun check(decltype(static_cast<T*>(nullptr)->run(std::cout,std::cin))*);
+	static HasTwoParameterRun check(decltype(static_cast<T*>(nullptr)->update(std::cout,std::cin))*);
 
 	template<typename T>
-	static HasOneParameterRun check(decltype(static_cast<T*>(nullptr)->run(std::cout))*);
+	static HasOneParameterRun check(decltype(static_cast<T*>(nullptr)->update(std::cout))*);
 
 
 	template<typename>
@@ -189,9 +189,9 @@ private:
 
 public:
 	template<class TargetClass, class T, class U>
-	static void run(TargetClass& obj, T& Manager, U& SuperManager){
+	static void update(TargetClass& obj, T& Manager, U& SuperManager){
 		typedef decltype(check<TargetClass>(nullptr)) Result;
-		Result::run(obj,Manager,SuperManager);
+		Result::update(obj,Manager,SuperManager);
 	}
 
 };
@@ -206,10 +206,12 @@ struct Dummy{
 		static_assert(false,"Can not forcus On Dummy.");
 	}
 
+	void focusOut(){}
+
 	template<class T>
-	void run(T& Manager){}
+	void update(T& Manager){}
 	
-	UNDEFINED_EVENT_CHATCHER;
+	UNDEFINED_EVENT_LISTENER;
 };
 
 //================================SceneList===================================
@@ -238,12 +240,15 @@ struct SceneList{
 };
 
 
+//==============================NoWaitFPSPolicy===============================
 
 class NoWaitFPSPolicy{
 public:
 	void wait(){}
 
 };
+
+//==============================NoRefreshPolicy===============================
 
 class NoRefreshPolicy{
 public:

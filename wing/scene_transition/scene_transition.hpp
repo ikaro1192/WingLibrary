@@ -36,7 +36,7 @@ SceneGroup‚Í‚¢‚­‚Â‚©‚ÌƒV[ƒ“‚ğƒOƒ‹[ƒv‚Æ‚µ‚Ä‚Ü‚Æ‚ß‚ÄŠÇ—‚·‚éƒNƒ‰ƒX‚ÅAŒÂX‚ÌƒV[
 ƒeƒ“ƒvƒŒ[ƒgˆø”‚Æ‚µ‚Ä“n‚µ‚Ü‚·B
 
 <ƒNƒ‰ƒX‚Ì“®ì‹y‚Ñ‘ŠŒİì—p>
-SceneGroup‚Ìrun‚ğŒÄ‚Ô‚Æ©“®“I‚ÉƒtƒH[ƒJƒX‚ª“ü‚Á‚½ƒV[ƒ“ƒIƒuƒWƒFƒNƒg‚ªÀs‚³‚ê‚Ü‚·B
+SceneGroup‚Ìupdate‚ğŒÄ‚Ô‚Æ©“®“I‚ÉƒtƒH[ƒJƒX‚ª“ü‚Á‚½ƒV[ƒ“ƒIƒuƒWƒFƒNƒg‚ªÀs‚³‚ê‚Ü‚·B
 
 <g‚¢•û>
 1.ƒV[ƒ“‚ğ‚ ‚ç‚í‚·‹ï‘Ì“I‚ÈƒNƒ‰ƒX‚ğÀ‘•‚·‚éB
@@ -53,21 +53,21 @@ SceneGroup‚Ìrun‚ğŒÄ‚Ô‚Æ©“®“I‚ÉƒtƒH[ƒJƒX‚ª“ü‚Á‚½ƒV[ƒ“ƒIƒuƒWƒFƒNƒg‚ªÀs‚³‚ê‚Ü‚
 ƒtƒH[ƒJƒX‚ª“ü‚Á‚½‚Æ‚«ŒÄ‚Î‚ê‚é(ƒpƒ‰ƒ[ƒ^‚ğó‚¯æ‚é)B
 
 
-Etemplate<class T> void run(T& Manager);
+Etemplate<class T> void update(T& Manager);
 Às“à—e‚ğ‘‚­B‚Ü‚½AManager‚ÖQÆ‚ğó‚¯æ‚ê‚é(changeFocus‚ğŒÄ‚Ô‚½‚ß)
 
 *void focusOut();
 ƒtƒH[ƒJƒX‚ªŠO‚ê‚½‚Æ‚«‚ÉŒÄ‚Î‚ê‚éƒfƒXƒgƒ‰ƒNƒ^‚Ì‚æ‚¤‚È‚à‚ÌB
 ’è‹`‚³‚ê‚Ä‚¢‚È‚¢ê‡‚ÍƒfƒtƒHƒ‹ƒg‚Ì‚à‚Ì‚ªŒÄ‚Î‚ê‚é
 
-*template<> void catchEvent<ó‚¯æ‚è‚½‚¢ƒCƒxƒ“ƒg‚ÌŒ^>()
+*template<> void listenEvent<ó‚¯æ‚è‚½‚¢ƒCƒxƒ“ƒg‚ÌŒ^>()
 ƒpƒ‰ƒ[ƒ^‚È‚µ‚ÌƒCƒxƒ“ƒg‚ğó‚¯æ‚é‚½‚ß‚Ì“Áê‰»
 
-*template<> void catchEvent<ó‚¯æ‚è‚½‚¢ƒCƒxƒ“ƒg‚ÌŒ^>(ó‚¯æ‚è‚½‚¢ƒCƒxƒ“ƒg‚ÌŒ^ e)
+*template<> void listenEvent<ó‚¯æ‚è‚½‚¢ƒCƒxƒ“ƒg‚ÌŒ^>(ó‚¯æ‚è‚½‚¢ƒCƒxƒ“ƒg‚ÌŒ^ e)
 ƒpƒ‰ƒ[ƒ^‚ ‚è‚ÌƒCƒxƒ“ƒg‚ğó‚¯æ‚é‚½‚ß‚Ì“Áê‰»
 
 ‚Æ‚È‚Á‚Ä‚¢‚Ü‚·B
-‚Ü‚½Apublic‚È—Ìˆæ‚ÉuUNDEFINED_EVENT_CHATCHERvƒ}ƒNƒ‚ğ‚¨‚¢‚Ä‚­‚¾‚³‚¢B
+‚Ü‚½Apublic‚È—Ìˆæ‚ÉuUNDEFINED_EVENT_LISTENERvƒ}ƒNƒ‚ğ‚¨‚¢‚Ä‚­‚¾‚³‚¢B
 
 
 2.Scene‚ğSceneGroup‚Ìƒeƒ“ƒvƒŒ[ƒgƒpƒ‰ƒ[ƒ^‚Æ‚µ‚Ä“n‚·(typedef‚·‚é‚±‚Æ„§)
@@ -76,7 +76,7 @@ auto GameManager = SceneGroup;
 ‚Ì‚æ‚¤‚È‘‚«•û‚ğ‚·‚é‚±‚Æ„§B
 ‚Ü‚½AƒRƒ“ƒXƒgƒ‰ƒNƒ^‚Ìˆø”‚Íƒeƒ“ƒvƒŒ[ƒgƒpƒ‰ƒ[ƒ^‚Å‚í‚½‚µ‚½ƒNƒ‰ƒX‚ÌƒIƒuƒWƒFƒNƒg‚ğ“n‚µ‚Ä‚­‚¾‚³‚¢B
 
-3.ƒ‹[ƒv‚ÅManager‚Ìrun‚ğŒÄ‚ÔB
+3.ƒ‹[ƒv‚ÅManager‚Ìupdate‚ğŒÄ‚ÔB
 
 
 
@@ -126,6 +126,8 @@ struct policy_selector;
 
 template <class SceneHolder, class P1=default_policy_args, class P2=default_policy_args >
 class SceneGroup:public policy_selector<P1, P2>::FPSPolicy, public policy_selector<P1, P2>::RefreshPolicy{
+#pragma region PrivateMember
+
 private:
 	typedef typename policy_selector<P1, P2>::FPSPolicy FPSPolicy;
 	typedef typename policy_selector<P1, P2>::RefreshPolicy RefreshPolicy;
@@ -156,6 +158,7 @@ private:
 	typedef typename SceneHolder::T17 U17;
 	typedef typename SceneHolder::T18 U18;
 	typedef typename SceneHolder::T19 U19;
+#pragma endregion
 
 public:
 
@@ -163,7 +166,7 @@ public:
 	SceneGroup(const SceneGroup<SceneHolder,P1, P2>& Obj);
 	SceneGroup& operator=(const SceneGroup<SceneHolder,P1, P2>& Obj);
 
-	void run();
+	void refresh();
 	
 	//ˆø”‚ ‚èA‚È‚µ‚Ì—¼•û‚ğ’ñ‹Ÿ
 	template<class T>
@@ -176,17 +179,14 @@ public:
 	template<class Event>
 		void throwEvent(typename wing::scene_transition::checkCallType<Event>::Result e);
 
-
-
-
 	int getNowTarget() const{return NowTarget;}
 
 	
-
+#pragma region PrivateMember
 private:
 
 	template<class T>
-	void run(T& Manager);
+	void update(T& Manager);
 
 	//ƒtƒH[ƒJƒX‚ğ•ÏX‚·‚é‚½‚ß‚Ì•â•ŠÖ”
 	void focusOut();
@@ -343,6 +343,8 @@ private:
 		template<class U>
 		static void func(typename Traits<typename wing::scene_transition::checkDefinedParameterTypedef<U19>::Result>::ParameterType p,U& obj){obj.focusOut();obj.NowTarget=19;obj.obj19.focusOn(p);}
 	};
+#pragma endregion
+
 public:
 	template<> void changeFocus<Defalt>(){focusOut();NowTarget=0;CheckHasFocusOn::focusOn(obj0);}
 	template<> void changeFocus<U1>(){focusOut();NowTarget=1;CheckHasFocusOn::focusOn(obj1);}
@@ -462,121 +464,121 @@ wing::scene_transition::SceneGroup<SceneHolder,P1, P2>& wing::scene_transition::
 template <class SceneHolder, class P1, class P2 >
 template<class Event>
 void wing::scene_transition::SceneGroup<SceneHolder,P1, P2>::throwEvent(){
-	obj0.catchEvent<Event>();
-	obj1.catchEvent<Event>();
-	obj2.catchEvent<Event>();
-	obj3.catchEvent<Event>();
-	obj4.catchEvent<Event>();
-	obj5.catchEvent<Event>();
-	obj6.catchEvent<Event>();
-	obj7.catchEvent<Event>();
-	obj8.catchEvent<Event>();
-	obj9.catchEvent<Event>();
-	obj10.catchEvent<Event>();
-	obj11.catchEvent<Event>();
-	obj12.catchEvent<Event>();
-	obj13.catchEvent<Event>();
-	obj14.catchEvent<Event>();
-	obj15.catchEvent<Event>();
-	obj16.catchEvent<Event>();
-	obj17.catchEvent<Event>();
-	obj18.catchEvent<Event>();
-	obj19.catchEvent<Event>();
+	obj0.listenEvent<Event>();
+	obj1.listenEvent<Event>();
+	obj2.listenEvent<Event>();
+	obj3.listenEvent<Event>();
+	obj4.listenEvent<Event>();
+	obj5.listenEvent<Event>();
+	obj6.listenEvent<Event>();
+	obj7.listenEvent<Event>();
+	obj8.listenEvent<Event>();
+	obj9.listenEvent<Event>();
+	obj10.listenEvent<Event>();
+	obj11.listenEvent<Event>();
+	obj12.listenEvent<Event>();
+	obj13.listenEvent<Event>();
+	obj14.listenEvent<Event>();
+	obj15.listenEvent<Event>();
+	obj16.listenEvent<Event>();
+	obj17.listenEvent<Event>();
+	obj18.listenEvent<Event>();
+	obj19.listenEvent<Event>();
 }
 
 template <class SceneHolder, class P1, class P2 >
 template<class Event>
 void wing::scene_transition::SceneGroup<SceneHolder,P1, P2>::throwEvent(typename wing::scene_transition::checkCallType<Event>::Result e){
-	obj0.catchEvent<Event>(static_cast<typename checkCallType<Event>::Result >(e));
-	obj1.catchEvent<Event>(e);
-	obj2.catchEvent<Event>(e);
-	obj3.catchEvent<Event>(e);
-	obj4.catchEvent<Event>(e);
-	obj5.catchEvent<Event>(e);
-	obj6.catchEvent<Event>(e);
-	obj7.catchEvent<Event>(e);
-	obj8.catchEvent<Event>(e);
-	obj9.catchEvent<Event>(e);
-	obj10.catchEvent<Event>(e);
-	obj11.catchEvent<Event>(e);
-	obj12.catchEvent<Event>(e);
-	obj13.catchEvent<Event>(e);
-	obj14.catchEvent<Event>(e);
-	obj15.catchEvent<Event>(e);
-	obj16.catchEvent<Event>(e);
-	obj17.catchEvent<Event>(e);
-	obj18.catchEvent<Event>(e);
-	obj19.catchEvent<Event>(e);
+	obj0.listenEvent<Event>(static_cast<typename checkCallType<Event>::Result >(e));
+	obj1.listenEvent<Event>(e);
+	obj2.listenEvent<Event>(e);
+	obj3.listenEvent<Event>(e);
+	obj4.listenEvent<Event>(e);
+	obj5.listenEvent<Event>(e);
+	obj6.listenEvent<Event>(e);
+	obj7.listenEvent<Event>(e);
+	obj8.listenEvent<Event>(e);
+	obj9.listenEvent<Event>(e);
+	obj10.listenEvent<Event>(e);
+	obj11.listenEvent<Event>(e);
+	obj12.listenEvent<Event>(e);
+	obj13.listenEvent<Event>(e);
+	obj14.listenEvent<Event>(e);
+	obj15.listenEvent<Event>(e);
+	obj16.listenEvent<Event>(e);
+	obj17.listenEvent<Event>(e);
+	obj18.listenEvent<Event>(e);
+	obj19.listenEvent<Event>(e);
 }
 
 
 
 template <class SceneHolder, class P1, class P2 >
 void wing::scene_transition::SceneGroup<SceneHolder,P1, P2>::
-	run(){
+	refresh(){
 	
 	DrawStart();
 
 	switch(NowTarget){
 		case 0:
-			obj0.run(*this);
+			obj0.update(*this);
 			break;
 		case 1:
-			obj1.run(*this);
+			obj1.update(*this);
 			break;
 		case 2:
-			obj2.run(*this);
+			obj2.update(*this);
 			break;
 		case 3:
-			obj3.run(*this);
+			obj3.update(*this);
 			break;
 		case 4:
-			obj4.run(*this);
+			obj4.update(*this);
 			break;
 		case 5:
-			obj5.run(*this);
+			obj5.update(*this);
 			break;
 		case 6:
-			obj6.run(*this);
+			obj6.update(*this);
 			break;
 		case 7:
-			obj7.run(*this);
+			obj7.update(*this);
 			break;
 		case 8:
-			obj8.run(*this);
+			obj8.update(*this);
 			break;
 		case 9:
-			obj9.run(*this);
+			obj9.update(*this);
 			break;
 		case 10:
-			obj10.run(*this);
+			obj10.update(*this);
 			break;
 		case 11:
-			obj11.run(*this);
+			obj11.update(*this);
 			break;
 		case 12:
-			obj12.run(*this);
+			obj12.update(*this);
 			break;
 		case 13:
-			obj13.run(*this);
+			obj13.update(*this);
 			break;
 		case 14:
-			obj14.run(*this);
+			obj14.update(*this);
 			break;
 		case 15:
-			obj15.run(*this);
+			obj15.update(*this);
 			break;
 		case 16:
-			obj16.run(*this);
+			obj16.update(*this);
 			break;
 		case 17:
-			obj17.run(*this);
+			obj17.update(*this);
 			break;
 		case 18:
-			obj18.run(*this);
+			obj18.update(*this);
 			break;
 		case 19:
-			obj19.run(*this);
+			obj19.update(*this);
 			break;	
 	}
 
@@ -587,69 +589,69 @@ void wing::scene_transition::SceneGroup<SceneHolder,P1, P2>::
 template <class SceneHolder, class P1, class P2 >
 template<class T>
 void wing::scene_transition::SceneGroup<SceneHolder,P1, P2>::
-	run(T& Manager){
+	update(T& Manager){
 		DrawStart();
 
 		switch(NowTarget){
 		case 0:
-			CheckHasRun::run(obj0,*this,Manager);
+			CheckHasRun::update(obj0,*this,Manager);
 			break;
 		case 1:
-			CheckHasRun::run(obj1,*this,Manager);
+			CheckHasRun::update(obj1,*this,Manager);
 			break;
 		case 2:
-			CheckHasRun::run(obj2,*this,Manager);
+			CheckHasRun::update(obj2,*this,Manager);
 			break;
 		case 3:
-			CheckHasRun::run(obj3,*this,Manager);
+			CheckHasRun::update(obj3,*this,Manager);
 			break;
 		case 4:
-			CheckHasRun::run(obj4,*this,Manager);
+			CheckHasRun::update(obj4,*this,Manager);
 			break;
 		case 5:
-			CheckHasRun::run(obj5,*this,Manager);
+			CheckHasRun::update(obj5,*this,Manager);
 			break;
 		case 6:
-			CheckHasRun::run(obj6,*this,Manager);
+			CheckHasRun::update(obj6,*this,Manager);
 			break;
 		case 7:
-			CheckHasRun::run(obj7,*this,Manager);
+			CheckHasRun::update(obj7,*this,Manager);
 			break;
 		case 8:
-			CheckHasRun::run(obj8,*this,Manager);
+			CheckHasRun::update(obj8,*this,Manager);
 			break;
 		case 9:
-			CheckHasRun::run(obj9,*this,Manager);
+			CheckHasRun::update(obj9,*this,Manager);
 			break;
 		case 10:
-			CheckHasRun::run(obj10,*this,Manager);
+			CheckHasRun::update(obj10,*this,Manager);
 			break;
 		case 11:
-			CheckHasRun::run(obj11,*this,Manager);
+			CheckHasRun::update(obj11,*this,Manager);
 			break;
 		case 12:
-			CheckHasRun::run(obj12,*this,Manager);
+			CheckHasRun::update(obj12,*this,Manager);
 			break;
 		case 13:
-			CheckHasRun::run(obj13,*this,Manager);
+			CheckHasRun::update(obj13,*this,Manager);
 			break;
 		case 14:
-			CheckHasRun::run(obj14,*this,Manager);
+			CheckHasRun::update(obj14,*this,Manager);
 			break;
 		case 15:
-			CheckHasRun::run(obj15,*this,Manager);
+			CheckHasRun::update(obj15,*this,Manager);
 			break;
 		case 16:
-			CheckHasRun::run(obj16,*this,Manager);
+			CheckHasRun::update(obj16,*this,Manager);
 			break;
 		case 17:
-			CheckHasRun::run(obj17,*this,Manager);
+			CheckHasRun::update(obj17,*this,Manager);
 			break;
 		case 18:
-			CheckHasRun::run(obj18,*this,Manager);
+			CheckHasRun::update(obj18,*this,Manager);
 			break;
 		case 19:
-			CheckHasRun::run(obj19,*this,Manager);
+			CheckHasRun::update(obj19,*this,Manager);
 			break;
 		}
 		wait();
