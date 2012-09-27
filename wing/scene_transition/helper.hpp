@@ -1,6 +1,5 @@
 #pragma once
-#pragma warning( disable : 4100 )
-#pragma warning( disable : 4290 )
+//#pragma warning( disable : 4290 )
 
 
 #include <string>
@@ -11,7 +10,7 @@
 #include "../common.hpp"
 
 #define UNDEFINED_EVENT_LISTENER template<class Event> void listenEvent(){}\
-	template<class Event> void listenEvent(typename wing::scene_transition::checkCallType<Event>::Result e){}
+	template<class Event> void listenEvent(typename wing::scene_transition::checkCallType<Event>::Result){}
 
 #define CALL_BY_CONST_REFERENCE struct ConstReference{}
 #define CALL_BY_REFERENCE struct Reference{}
@@ -209,7 +208,7 @@ struct Dummy{
 	void focusOut(){}
 
 	template<class T>
-	void update(T& Manager){}
+	void update(T&){}
 	
 	UNDEFINED_EVENT_LISTENER;
 };
@@ -291,7 +290,8 @@ class DefaultSceneContainerSafetyPolicy{
 public:
 	typedef std::shared_ptr<Scene> ScenePointee;
 
-	void append(std::shared_ptr<Scene> AppendScene, Key AppendKey)throw(std::invalid_argument){
+	//std::invalid_argument
+	void append(std::shared_ptr<Scene> AppendScene, Key AppendKey){
 		if (SceneData.find(AppendKey)==SceneData.end()){
 			SceneData[AppendKey]=AppendScene;
 		}else{
@@ -300,7 +300,8 @@ public:
 	}
 
 protected:
-	ScenePointee get(Key Key_)throw(std::invalid_argument){
+	//std::invalid_argument
+	ScenePointee get(Key Key_){
 		if (SceneData.find(AppendKey)!=SceneData.end()){
 			return SceneData[Key_];
 		}else{

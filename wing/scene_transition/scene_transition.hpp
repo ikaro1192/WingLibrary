@@ -90,6 +90,10 @@ auto GameManager = SceneGroup;
 								  
 
 namespace wing{
+
+/**
+*@brief シーン遷移関係するもの
+*/
 namespace scene_transition{
 
 template<typename T>
@@ -99,6 +103,9 @@ template<int ID>
 struct Dummy;
 
 
+/**
+*@brief SceneGropのSceneHolderパラメータに渡しやすくするための補助クラス
+*/
 template < class Defalt, class S1, class S2, class S3, class S4, class S5, class S6,class S7, class S8, class S9, class S10, class S11, class S12, class S13, class S14, class S15,class S16, class S17, class S18, class S19>
 struct SceneList;
 
@@ -121,9 +128,39 @@ template <class P1, class P2>
 struct policy_selector;
 
 //========================================SceneGroup===================================
-//Sceneをまとめて扱うためのクラス
-//高速化(コンパイル時ディスパッチ)のためSeenを配列ではなく、個別のインスタンスとしている
 
+/**
+*@brief Sceneをまとめて扱うためのクラス
+
+シーンの暗黙のインターフェース(・が必須、*がオプション)
+
+*typedef (型) Parameter;
+パラメータありのfocusOn(後述)が呼ばれたときの受け取る引数の型(複数受け取る場合はオブジェクト)
+
+*void focusOn();
+フォーカスが入ったとき呼ばれるコンストラクタのようなもの。
+定義されていない場合はデフォルト(なにもしない)のものが呼ばれる。
+
+*void focusOn(Parameter);
+フォーカスが入ったとき呼ばれる(パラメータを受け取る)。
+
+
+・template<class T> void update(T& Manager);
+実行内容を書く。また、Managerへ参照を受け取れる(changeFocusを呼ぶため)
+
+*void focusOut();
+フォーカスが外れたときに呼ばれるデストラクタのようなもの。
+定義されていない場合はデフォルトのものが呼ばれる
+
+*template<> void listenEvent<受け取りたいイベントの型>()
+パラメータなしのイベントを受け取るための特殊化
+
+*template<> void listenEvent<受け取りたいイベントの型>(受け取りたいイベントの型 e)
+パラメータありのイベントを受け取るための特殊化
+
+となっています。
+また、publicな領域に「UNDEFINED_EVENT_LISTENER」マクロをおいてください。
+*/
 template <class SceneHolder, class P1=default_policy_args, class P2=default_policy_args >
 class SceneGroup:public policy_selector<P1, P2>::FPSPolicy, public policy_selector<P1, P2>::RefreshPolicy{
 #pragma region PrivateMember
@@ -166,16 +203,33 @@ public:
 	SceneGroup(const SceneGroup<SceneHolder,P1, P2>& Obj);
 	SceneGroup& operator=(const SceneGroup<SceneHolder,P1, P2>& Obj);
 
+	/**
+	*@brief SceneGropを更新
+	*/
 	void refresh();
 	
 	//引数あり、なしの両方を提供
+	/**
+	*@brief 引数なしのフォーカスの変更。変更先はテンプレートパラメータで指定。
+	*/
 	template<class T>
 		void changeFocus(){static_assert(false,"Bad focus change.");}
+	/**
+	*@brief 引数ありのフォーカスの変更。変更先はテンプレートパラメータで指定。
+	*@param p パラメータオブジェクト
+	*/
 	template<class T>
 		void changeFocus(typename Traits<typename wing::scene_transition::checkDefinedParameterTypedef<T>::Result>::ParameterType p){ChangeFocusSpecialization<T>::func(p,*this);}
-	
+
+	/**
+	*@brief イベント送出。イベントはテンプレートパラメータで指定
+	*/
 	template<class Event>
 		void throwEvent();
+	/**
+	*@brief イベント送出。イベントはテンプレートパラメータで指定。
+	*@param e イベントオブジェクト
+	*/
 	template<class Event>
 		void throwEvent(typename wing::scene_transition::checkCallType<Event>::Result e);
 
@@ -190,7 +244,7 @@ private:
 
 	//フォーカスを変更するための補助関数
 	void focusOut();
-
+	//高速化(コンパイル時ディスパッチ)のためSeenを配列ではなく、個別のインスタンスとしている
 	int NowTarget;
 	Defalt obj0;
 	U1 obj1;
