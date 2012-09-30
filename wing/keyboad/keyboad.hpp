@@ -11,6 +11,19 @@ namespace wing{
 namespace keyboad{
 
 /**
+*@brief 現在押されているキーの取得
+*@return 押されていれば押されているキーコード、押されていなければ-1
+*/
+int getNowPushKey(){
+	char AllKey[256];
+	GetHitKeyStateAll(AllKey);
+	for(auto i = 0; i < 256; ++i){
+		if ( AllKey[i] == 1 ) return i;
+	} 
+	return -1;
+}
+
+/**
 *@brief キーボードのキーの状態
 *
 */
