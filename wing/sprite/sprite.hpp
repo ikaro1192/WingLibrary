@@ -53,6 +53,15 @@ bool checkRectHit(const A& obj1, const B& obj2);
 template<class A, class B>
 inline bool checkCircleHit(const A& obj1, const B& obj2);
 
+/**
+*@brief 移動(1フレーム前の位置)も考慮した高精度な円同士(Spriteを想定)の当たり判定
+*@param obj1 当たり判定を行うオブジェクト1
+*@param obj2 当たり判定を行うオブジェクト2
+*@return 当たっていればtrue。当たっていない、自分自身の場合false
+**/
+template<class A, class B>
+inline bool checkAccuracyCircleHit(const A& obj1, const B& obj2);
+
 
 //===============================Sprite================================
 
@@ -76,7 +85,6 @@ public:
 	*@brief スプライトがCanvas外になった時に呼ばれる。必要ならオーバーライドして使う
 	**/
 	virtual void outCanvas(){}
-	
 	/**
 	*@brief SpriteのCanvas上の相対x座標を取得する
 	**/
@@ -85,6 +93,15 @@ public:
 	*@brief SpriteのCanvas上の相対y座標を取得する
 	**/
 	int getPosY() const;
+	/**
+	*@brief Spriteの1Frame前のCanvas上の相対x座標を取得する
+	**/
+	int getBeforePosX() const;
+	/**
+	*@brief Spriteの1Frame前のCanvas上の相対y座標を取得する
+	**/
+	int getBeforePosY() const;
+
 	/**
 	*@brief 現在設定されている当たり判定の領域%を返す
 	*@return 設定されている値(%)
@@ -186,11 +203,13 @@ private:
 	const int TypeID;
 	int PosX;
 	int PosY;
+	int BeforePosX;
+	int BeforePosY;
 	int Width;
 	int Height;
-	bool TranceFlag;
+	const bool TranceFlag;
 	bool AliveFlag;
-	int HitCheckRate;
+	const int HitCheckRate;
 #pragma endregion
 
 };
@@ -305,14 +324,62 @@ inline bool checkCircleHit(const A& obj1, const B& obj2){
 	
 	auto X1 = obj1.getPosX() + obj1.getWidth()/2;
 	auto X2 = obj2.getPosX() + obj2.getWidth()/2;
-	auto Y1 =  obj1.getPosY() + obj1.getHeight()/2;
-	auto Y2 =  obj2.getPosY() + obj2.getHeight()/2;
+	auto Y1 = obj1.getPosY() + obj1.getHeight()/2;
+	auto Y2 = obj2.getPosY() + obj2.getHeight()/2;
 
 	auto R1 = (obj1.getRadiusSquare()* obj1.getHitCheckRate()) / 100;
 	auto R2 = (obj1.getRadiusSquare()* obj2.getHitCheckRate()) / 100;
 
 
 	return (X1 - X2) * (X1 - X2) + (Y1 - Y2) * (Y1 - Y2) <= (R1 + R2) * (R1 + R2);
+
+}
+
+template<class A, class B>
+inline bool checkAccuracyCircleHit(const A& obj1, const B& obj2){
+	
+	if (&obj1==&obj2) return false;
+
+	//if (checkCircleHit(obj1,obj2)){
+	//	return true;
+	//}
+
+	//中心座標
+	auto X1 = obj1.getPosX() + obj1.getWidth()/2;
+	auto Y1 = obj1.getPosY()  + obj1.getHeight()/2;
+
+	auto X2 = obj2.getPosX() + obj2.getWidth()/2;
+	auto Y2 =  obj2.getPosY() + obj2.getHeight()/2;
+
+	//当たり判定用の半径
+	auto R1 = (obj1.getRadiusSquare()* obj1.getHitCheckRate()) / 100;
+	auto R2 = (obj1.getRadiusSquare()* obj2.getHitCheckRate()) / 100;
+
+	auto Vx=obj1.getPosX()-obj1.getBeforePosX();
+	auto Vy=obj1.getPosY()-obj1.getBeforePosY();
+	auto Ux=obj2.getPosX()-obj2.getBeforePosX();
+	auto Uy=obj2.getPosY()-obj2.getBeforePosY();
+
+	auto vx = Vx-Ux;
+	auto vy = Vy-Uy;
+	auto X = X1- X2;
+	auto Y = Y1- Y2;
+	auto R = R1 + R2;
+
+
+
+	auto a = vx*vx+vy*vy;
+	auto b = vx*X+vy*Y;
+	auto c = X*X+Y*Y;
+
+	if (b >= 0){
+		return (c <= R*R);
+	}
+	if (b <= -2*a){
+		return a+ b +c <= R*R;
+	}
+
+	return b*b>=4*a*(R*R+1);
 
 }
 
@@ -324,6 +391,8 @@ template<typename DrawEngine>
 inline Sprite<DrawEngine>::Sprite(typename DrawEngine::ImageType img, wing::RectSize size, wing::Position position, int hit_check_rate=100, bool trance_flag=false, int type_id=0):
 	  PosX(position.getX()),
 	  PosY(position.getY()),
+	  BeforePosX(position.getX()),
+	  BeforePosY(position.getY()),
 	  Width(size.getWidth()),
 	  Height(size.getHeight()),
 	  TranceFlag(trance_flag),
@@ -344,8 +413,10 @@ inline void Sprite<DrawEngine>::setHitCheckRate(int hit_check_rate){
 	
 template<typename DrawEngine>
 inline void Sprite<DrawEngine>::setLocation(int x,int y){
-	PosX=x;
-	PosY=y;
+	BeforePosX = PosX;
+	BeforePosY = PosY;
+	PosX = x;
+	PosY = y;
 }
 
 template<typename DrawEngine>
@@ -355,29 +426,38 @@ inline void Sprite<DrawEngine>::kill(){
 
 template<typename DrawEngine>
 inline void Sprite<DrawEngine>::move(int dx,int dy){
+	BeforePosX=PosX;
+	BeforePosY=PosY;
 	PosX+=dx;
 	PosY+=dy;
 }
 
 
 template<typename DrawEngine>
-inline	int Sprite<DrawEngine>::getPosX() const {return PosX;}
+inline int Sprite<DrawEngine>::getPosX() const {return PosX;}
 
 template<typename DrawEngine>
-inline	int Sprite<DrawEngine>::getPosY() const {return PosY;}
+inline int Sprite<DrawEngine>::getPosY() const {return PosY;}
 
 template<typename DrawEngine>
-inline	int Sprite<DrawEngine>::getWidth() const {return Width;}
+inline int Sprite<DrawEngine>::getBeforePosX() const {return BeforePosX;}
 
 template<typename DrawEngine>
-inline	int Sprite<DrawEngine>::getHeight() const {return Height;}
+inline int Sprite<DrawEngine>::getBeforePosY() const {return BeforePosY;}
+
+
+template<typename DrawEngine>
+inline int Sprite<DrawEngine>::getWidth() const {return Width;}
+
+template<typename DrawEngine>
+inline int Sprite<DrawEngine>::getHeight() const {return Height;}
 
 template<typename DrawEngine>
 inline int Sprite<DrawEngine>::getTypeID() const {return TypeID;}
 
 
 template<typename DrawEngine>
-inline	int Sprite<DrawEngine>::getHitCheckRate() const{return HitCheckRate;}
+inline int Sprite<DrawEngine>::getHitCheckRate() const{return HitCheckRate;}
 
 
 
