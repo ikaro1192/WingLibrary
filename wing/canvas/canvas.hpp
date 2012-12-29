@@ -175,6 +175,31 @@ private:
 typedef AbstructCanvas<wing::image::DrawEngine> DxAbstructCanvas;
 
 
+/**
+*@brief Rootキャンバス
+*/
+template<class DrawEngine>
+class RootCanvas : public wing::canvas::AbstructCanvas<DrawEngine>{
+public:
+	RootCanvas(wing::RectSize CanvasSize, wing::Position CanvasPosition):
+	  wing::canvas::AbstructCanvas<wing::image::DrawEngine>(wing::RectSize(CanvasSize), wing::Position(CanvasPosition)){}
+
+	  void focusOn() override {}
+	  void callFocusOn(ThisType&) override {}
+	  void update(ThisType&) override {}
+	  void focusOff() override {}
+
+
+
+};
+
+/**
+*@brief DxLibを使う場合のRootキャンバスのTypedef
+*/
+typedef RootCanvas<wing::image::DrawEngine> DXRootCanvas;
+
+
+
 
 //==========================AbstructCanvas実装================
 template<typename DrawEngine>
@@ -303,6 +328,7 @@ void AbstructCanvas<DrawEngine>::refresh(){
 		(*iter)-> update(*this);
 	}
 
+	//キャンバス外に出たかどうか判定
 	for(auto iter = SpriteList.begin(); iter != SpriteList.end(); ++iter){
 		if ( ((*iter)->getPosX()) > (this->getWidth()) ) (*iter)->outCanvas();
 		if ( ((*iter)->getPosX()) + (*iter)->getWidth() < 0 ) (*iter)->outCanvas();
