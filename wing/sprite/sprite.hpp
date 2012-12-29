@@ -62,6 +62,28 @@ inline bool checkCircleHit(const A& obj1, const B& obj2);
 template<class A, class B>
 inline bool checkAccuracyCircleHit(const A& obj1, const B& obj2);
 
+/**
+*@brief スプライトをリフレッシュする
+*@param Canvas 判定するキャンバス
+*@param begin
+*@param end iterator
+*@param remover 死んだスプライトに適応するor取り除く処理を行うファンクタ
+*@return removerの結果
+**/
+template<class RemovePolicy,class CanvasClass,class Iter>
+inline Iter refreshSprite(CanvasClass& Canvas, Iter begin, Iter end);
+
+struct NoRemove{
+
+template<class Iter,class Function>
+static Iter remove(Iter&,Iter& end,Function){return end;}
+};
+
+struct Remove{
+template<class Iter,class Function>
+static Iter remove(Iter& begin, Iter& end,Function func){return std::remove_if(begin,end,func);}
+};
+
 
 //===============================Sprite================================
 
@@ -74,7 +96,7 @@ public:
 
 	typedef typename DrawEngine::ImageType ImageType;
 
-	Sprite(ImageType img, wing::RectSize size, wing::Position position = wing::Position(0, 0) , int hit_check_rate=100, bool trance_flag=false,int type_id=0);
+	Sprite(ImageType img, wing::RectSize size, wing::Position position = wing::Position(0, 0) , wing::utility::StrictType<int> hit_check_rate=100, wing::utility::StrictType<bool> trance_flag=false, wing::utility::StrictType<int> type_id=0);
 
 	/**
 	*@brief スプライトのアップデート関数。必要ならオーバーライドして使う
@@ -383,12 +405,43 @@ inline bool checkAccuracyCircleHit(const A& obj1, const B& obj2){
 
 }
 
+template<class RemovePolicy,class CanvasClass,class Iter>
+inline Iter refreshSprite(CanvasClass& Canvas, Iter begin, Iter end){
+
+
+	//キャンバス外に出たかどうか判定
+	
+	std::for_each(begin, end,
+		[&](decltype(*begin)& obj){
+			if ( obj->getPosX() > Canvas.getWidth() ) obj->outCanvas();
+			if ( obj->getPosX() + obj->getWidth() < 0 ) obj->outCanvas();
+			if ( obj->getPosY() > Canvas.getHeight() ) obj->outCanvas();
+			if ( obj->getPosY() + obj->getHeight() < 0 ) obj->outCanvas();
+		}
+	);
+	
+	//死んだスプライトの開放
+	
+	auto NewEndIter = RemovePolicy::remove(begin, end,
+		[](const decltype(*begin)& obj){return obj->isAlive () == false;}
+	);
+	
+
+	//Spriteをupdate
+	std::for_each(begin, NewEndIter,
+		[&](decltype(*begin)& obj){
+			obj->update(Canvas);
+		}
+	);
+
+	return NewEndIter;
+}
 
 //==========================Sprite実装================
 
 
 template<typename DrawEngine>
-inline Sprite<DrawEngine>::Sprite(typename DrawEngine::ImageType img, wing::RectSize size, wing::Position position, int hit_check_rate=100, bool trance_flag=false, int type_id=0):
+inline Sprite<DrawEngine>::	Sprite(ImageType img, wing::RectSize size, wing::Position position, wing::utility::StrictType<int> hit_check_rate, wing::utility::StrictType<bool> trance_flag, wing::utility::StrictType<int> type_id):
 	  PosX(position.getX()),
 	  PosY(position.getY()),
 	  BeforePosX(position.getX()),
